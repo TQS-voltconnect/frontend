@@ -1,28 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import mainImage from '../assets/mainimage.png'; // Ensure you have an image in this path
+import mainImage from '../assets/mainimage.png'; 
 
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <span className="text-xl font-bold text-emerald-600">VoltConnect</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/login" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                Sign In
-              </Link>
-              <Link to="/register" className="bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-800">
-                Register
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+
 
       {/* Hero Section */}
       <div className="relative bg-emerald-700 overflow-hidden">
