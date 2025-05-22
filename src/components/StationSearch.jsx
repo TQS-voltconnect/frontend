@@ -18,9 +18,8 @@ const StationSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     availableOnly: true,
-    chargerType: "all",
+    connectorType: "all",
     powerLevel: "all",
-    showAdvanced: false,
   });
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,20 +43,21 @@ const StationSearch = () => {
         const response = await axios.get("http://localhost:8080/api/stations");
         console.log("Stations:", response.data);
 
-        // Transformar os dados para o formato esperado pelo componente
         const transformedStations = response.data.map((station) => {
-          // Calcular disponibilidade (quantos carregadores estão disponíveis)
           const available = station.chargers.filter(
             (c) => c.chargerStatus === "AVAILABLE"
           ).length;
           const total = station.chargers.length;
 
-          // Extrair tipos de conectores únicos
-          const connectors = [
-            ...new Set(station.chargers.map((c) => c.chargerType)),
-          ];
+          const connectors = Array.isArray(station.chargers)
+            ? [...new Set(
+                station.chargers
+                  .map((c) => c.chargerType)
+                  .filter((c) => typeof c === "string" && c.trim() !== "")
+              )]
+            : [];
 
-          // Calcular velocidade máxima de carregamento
+
           const maxPower = Math.max(
             ...station.chargers.map((c) => c.chargingSpeed)
           );
@@ -65,6 +65,7 @@ const StationSearch = () => {
           return {
             id: station.id,
             name: `Station ${station.id}`,
+            city: station.city || '',
             address: `Operator ${station.operatorId}`,
             coordinates: station.location
               ? [station.location[0], station.location[1]]
@@ -109,14 +110,17 @@ const StationSearch = () => {
     if (!station) return false;
 
     const matchesSearch =
-      station.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      station.address.toLowerCase().includes(searchTerm.toLowerCase());
-
+      station.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      station.city.toLowerCase().includes(searchTerm.toLowerCase());
+      
     const matchesAvailability = !filters.availableOnly || station.available > 0;
 
-    const matchesChargerType =
-      filters.chargerType === "all" ||
-      station.connectors.includes(filters.chargerType);
+    let matchesChargerType = true;
+    if (filters.connectorType !== "all") {
+      const connectors = Array.isArray(station.connectors) ? station.connectors : [];
+      matchesChargerType = connectors.includes(filters.connectorType);
+    }
+
 
     let matchesPower = true;
     if (filters.powerLevel !== "all") {
@@ -217,6 +221,7 @@ const StationSearch = () => {
                     <p>
                       {station.available}/{station.total} chargers available
                     </p>
+                    <p>{station.city}</p>
                     <div className="mt-2 flex flex-wrap gap-1">
                       {station.connectors.map((connector, idx) => (
                         <span
@@ -262,6 +267,9 @@ const StationSearch = () => {
                     <p className="text-sm text-gray-600 mt-1">
                       {station.address}
                     </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {station.city}
+                    </p>  
                   </div>
                   <span
                     className={`text-xs px-2 py-1 rounded-full font-semibold ${
