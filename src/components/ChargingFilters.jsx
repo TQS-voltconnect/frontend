@@ -45,9 +45,9 @@ export default function ChargingFilters({ filters, onChange, showAdvanced, toggl
             className="mt-1 block w-full px-3 py-2 text-base border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 sm:text-sm bg-white"
           >
             <option value="all">All Types</option>
-            <option value="Type 2">Type 2</option>
-            <option value="CCS">CCS</option>
-            <option value="CHAdeMO">CHAdeMO</option>
+            <option value="AC1">AC1</option>
+            <option value="AC2">AC2</option>
+            <option value="DC">DC</option>
           </select>
         </div>
 
