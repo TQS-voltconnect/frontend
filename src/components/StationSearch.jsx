@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import ChargingFilters from "./ChargingFilters";
@@ -20,17 +20,33 @@ const StationSearch = () => {
     availableOnly: true,
     connectorType: "all",
     powerLevel: "all",
+    showAdvanced: false,
   });
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedStationId, setSelectedStationId] = useState(null);
+
+  const ZoomToStation = ({ coordinates, stationId, selectedStationId }) => {
+    const map = useMap();
+
+    useEffect(() => {
+      if (coordinates && stationId === selectedStationId) {
+        map.flyTo(coordinates, 10, {
+          animate: true,
+          duration: 1
+        });
+      }
+    }, [coordinates, map, stationId, selectedStationId]);
+
+    return null;
+  };
 
   const greenBoltIcon = L.divIcon({
     className: "",
     html: `
       <svg width="30" height="40" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path fill="#16A34A" d="M12 0L3 14h7v18l9-22h-7z"/>
-        <path fill="white" d="M11 2l-7 12h6v16l9-20h-6z"/>
       </svg>
     `,
     iconSize: [30, 40],
@@ -51,12 +67,11 @@ const StationSearch = () => {
 
           const connectors = Array.isArray(station.chargers)
             ? [...new Set(
-                station.chargers
-                  .map((c) => c.chargerType)
-                  .filter((c) => typeof c === "string" && c.trim() !== "")
-              )]
+              station.chargers
+                .map((c) => c.chargerType)
+                .filter((c) => typeof c === "string" && c.trim() !== "")
+            )]
             : [];
-
 
           const maxPower = Math.max(
             ...station.chargers.map((c) => c.chargingSpeed)
@@ -75,7 +90,6 @@ const StationSearch = () => {
             connectors,
             power: `${maxPower} kW`,
             rating: "4.5",
-            distance: "0.5 km",
           };
         });
 
@@ -112,7 +126,7 @@ const StationSearch = () => {
     const matchesSearch =
       station.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
       station.city.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
     const matchesAvailability = !filters.availableOnly || station.available > 0;
 
     let matchesChargerType = true;
@@ -120,7 +134,6 @@ const StationSearch = () => {
       const connectors = Array.isArray(station.connectors) ? station.connectors : [];
       matchesChargerType = connectors.includes(filters.connectorType);
     }
-
 
     let matchesPower = true;
     if (filters.powerLevel !== "all") {
@@ -197,12 +210,18 @@ const StationSearch = () => {
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6"
         style={{ minHeight: "600px" }}
       >
-        <div className="md:w-2/3 h-96 md:h-auto rounded-lg overflow-hidden shadow">
+        <div className="md:w-2/3 h-96 md:h-auto rounded-lg overflow-hidden shadow map-container">
           <MapContainer
-            center={[38.7223, -9.1393]}
-            zoom={12}
+            center={[41.5, -8.5]}
+            zoom={5.5}
+            minZoom={5.5} 
+            scrollWheelZoom={true}
+            maxBounds={[
+              [36.8, -10.0],
+              [42.3, -5.5],
+            ]}
+            maxBoundsViscosity={1.0}
             style={{ height: "100%", width: "100%" }}
-            scrollWheelZoom={false}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -213,33 +232,42 @@ const StationSearch = () => {
                 key={station.id}
                 position={station.coordinates}
                 icon={greenBoltIcon}
+                eventHandlers={{
+                  click: () => setSelectedStationId(station.id),
+                }}
               >
                 <Popup>
-                  <div>
-                    <h3 className="font-bold">{station.name}</h3>
-                    <p>{station.address}</p>
-                    <p>
-                      {station.available}/{station.total} chargers available
-                    </p>
-                    <p>{station.city}</p>
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {station.connectors.map((connector, idx) => (
+                  <div
+                    className="bg-green-50 p-2 rounded shadow text-gray-800 text-sm"
+                    style={{ minWidth: "220px", maxWidth: "250px" }}
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="font-semibold text-emerald-700 truncate">{station.name}</span>
+                      <span className="text-xs text-gray-500">{station.power}</span>
+                    </div>
+
+                    <div className="flex justify-between text-xs text-gray-600 mb-1">
+                      <span>{station.city}</span>
+                      <span>{station.available}/{station.total} available</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1">
+                      {station.connectors.slice(0, 3).map((connector, idx) => (
                         <span
                           key={idx}
-                          className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
+                          className="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full"
                         >
                           {connector}
                         </span>
                       ))}
                     </div>
-                    <Link
-                      to={`/stations/${station.id}`}
-                      className="text-emerald-600 hover:underline block mt-2"
-                    >
-                      View details
-                    </Link>
                   </div>
                 </Popup>
+                <ZoomToStation
+                  coordinates={station.coordinates}
+                  stationId={station.id}
+                  selectedStationId={selectedStationId}
+                />
               </Marker>
             ))}
           </MapContainer>
@@ -257,7 +285,17 @@ const StationSearch = () => {
             {filteredStations.map((station) => (
               <li
                 key={station.id}
-                className="p-6 hover:bg-gray-50 transition-colors"
+                className={`p-6 transition-colors cursor-pointer ${selectedStationId === station.id
+                    ? "bg-emerald-50 border-l-4 border-emerald-500"
+                    : "hover:bg-gray-50"
+                  }`}
+                onClick={() => {
+                  setSelectedStationId(station.id);
+                  document.querySelector('.map-container')?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                  });
+                }}
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -269,24 +307,20 @@ const StationSearch = () => {
                     </p>
                     <p className="text-sm text-gray-500 mt-1">
                       {station.city}
-                    </p>  
+                    </p>
                   </div>
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-semibold ${
-                      station.available > 0
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
+                    className={`text-xs px-2 py-1 rounded-full font-semibold ${station.available > 0
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                      }`}
                   >
                     {station.available}/{station.total} available
                   </span>
                 </div>
 
                 <div className="flex items-center mt-3 text-sm text-gray-500 space-x-3">
-                  <span>{station.distance}</span>
-                  <span>•</span>
                   <span>{station.power}</span>
-                  <span>•</span>
                   <div className="flex items-center">
                     <svg
                       className="h-4 w-4 text-yellow-400 mr-1"
