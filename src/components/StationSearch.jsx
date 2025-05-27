@@ -57,7 +57,7 @@ const StationSearch = () => {
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await axios.get(`${baseUrl}/stations`);
+        const response = await axios.get(`${deployUrl}/stations`);
         console.log("Stations:", response.data);
 
         const transformedStations = response.data.map((station) => {
