@@ -5,7 +5,8 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import ChargingFilters from "./ChargingFilters";
-
+const baseUrl = import.meta.env.VITE_API_URL_LOCAL; 
+const deployUrl = import.meta.env.VITE_API_URL_DEPLOY;
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -56,7 +57,7 @@ const StationSearch = () => {
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/stations");
+        const response = await axios.get(`${baseUrl}/stations`);
         console.log("Stations:", response.data);
 
         const transformedStations = response.data.map((station) => {
