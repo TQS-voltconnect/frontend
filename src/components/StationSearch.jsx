@@ -57,10 +57,17 @@ const StationSearch = () => {
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await axios.get(`${deployUrl}/stations`);
+        setLoading(true);
+        setError(null);
 
+        const response = await axios.get(`${deployUrl}/stations`);
+        console.log("API Response:", response.data); // Log para debug
+
+        // Verifica se a resposta é um array
         if (!Array.isArray(response.data)) {
-          throw new Error("Invalid response format: expected array");
+          throw new Error(
+            "Formato de resposta inválido: era esperado um array"
+          );
         }
 
         const transformedStations = response.data.map((station) => {
@@ -70,11 +77,13 @@ const StationSearch = () => {
           ).length;
           const total = chargers.length;
 
+          // Extrai tipos de conectores únicos
           const connectors = chargers
             .map((c) => c.chargerType)
             .filter((type) => typeof type === "string" && type.trim() !== "");
           const uniqueConnectors = [...new Set(connectors)];
 
+          // Calcula a potência máxima
           const maxPower =
             chargers.length > 0
               ? Math.max(...chargers.map((c) => c.chargingSpeed || 0))
@@ -82,13 +91,13 @@ const StationSearch = () => {
 
           return {
             id: station.id,
-            name: `Station ${station.id}`,
-            city: station.city || "Unknown city",
-            address: `Operator ${station.operatorId}`,
+            name: `Estação ${station.id}`,
+            city: station.city || "Cidade desconhecida",
+            address: `Operador ${station.operatorId}`,
             coordinates:
               Array.isArray(station.location) && station.location.length === 2
                 ? [station.location[0], station.location[1]]
-                : [38.7223, -9.1393], // Lisbon fallback
+                : [38.7223, -9.1393], // Fallback para Lisboa
             available,
             total,
             connectors: uniqueConnectors,
@@ -99,15 +108,19 @@ const StationSearch = () => {
 
         setStations(transformedStations);
       } catch (err) {
-        console.error("Error fetching stations:", err);
-        setError(err.message || "Failed to load stations");
+        console.error("Erro ao carregar estações:", err);
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Falha ao carregar estações"
+        );
       } finally {
         setLoading(false);
       }
     };
 
     fetchStations();
-  }, [deployUrl]); // Add deployUrl to dependencies if it can change
+  }, [deployUrl]);
 
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
