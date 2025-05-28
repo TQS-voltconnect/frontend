@@ -5,6 +5,8 @@ import PropTypes from "prop-types";
 const StationListItem = ({ station, isSelected, onSelect }) => {
   return (
     <li
+      role="button"
+      tabIndex={0}
       className={`p-6 transition-colors cursor-pointer ${
         isSelected
           ? "bg-emerald-50 border-l-4 border-emerald-500"
@@ -16,6 +18,15 @@ const StationListItem = ({ station, isSelected, onSelect }) => {
           behavior: "smooth",
           block: "start",
         });
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          onSelect(station.id);
+          document.querySelector(".map-container")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
       }}
     >
       <div className="flex justify-between items-start">
@@ -50,9 +61,9 @@ const StationListItem = ({ station, isSelected, onSelect }) => {
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {station.connectors.map((connector, idx) => (
+        {station.connectors.map((connector) => (
           <span
-            key={idx}
+            key={connector}
             className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium"
           >
             {connector}
