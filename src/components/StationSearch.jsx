@@ -1,13 +1,12 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import ChargingFilters from "./ChargingFilters";
+import StationListItem from "./StationListItem";
 
-const baseurl =
-  import.meta.env.VITE_API_URL_LOCAL 
+const baseurl = import.meta.env.VITE_API_URL_LOCAL;
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -63,7 +62,6 @@ const StationSearch = () => {
         setError(null);
 
         const response = await axios.get(`${baseurl}/stations`);
-
         const rawData = response.data;
         if (!Array.isArray(rawData)) {
           throw new Error(
@@ -255,36 +253,13 @@ const StationSearch = () => {
                 }}
               >
                 <Popup>
-                  <div
-                    className="bg-green-50 p-2 rounded shadow text-gray-800 text-sm"
-                    style={{ minWidth: "220px", maxWidth: "250px" }}
-                  >
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="font-semibold text-emerald-700 truncate">
-                        {station.name}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        {station.power}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between text-xs text-gray-600 mb-1">
-                      <span>{station.city}</span>
-                      <span>
-                        {station.available}/{station.total} available
-                      </span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-1">
-                      {station.connectors.slice(0, 3).map((connector, idx) => (
-                        <span
-                          key={idx}
-                          className="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full"
-                        >
-                          {connector}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="text-sm">
+                    <strong>{station.name}</strong>
+                    <p>{station.city}</p>
+                    <p>
+                      {station.available}/{station.total} disponíveis
+                    </p>
+                    <p>{station.power}</p>
                   </div>
                 </Popup>
                 <ZoomToStation
@@ -307,76 +282,12 @@ const StationSearch = () => {
           </h2>
           <ul className="divide-y divide-gray-200">
             {filteredStations.map((station) => (
-              <li
+              <StationListItem
                 key={station.id}
-                className={`p-6 transition-colors cursor-pointer ${
-                  selectedStationId === station.id
-                    ? "bg-emerald-50 border-l-4 border-emerald-500"
-                    : "hover:bg-gray-50"
-                }`}
-                onClick={() => {
-                  setSelectedStationId(station.id);
-                  document.querySelector(".map-container")?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                  });
-                }}
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold text-emerald-600">
-                      {station.name}
-                    </h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {station.address}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">{station.city}</p>
-                  </div>
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full font-semibold ${
-                      station.available > 0
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {station.available}/{station.total} available
-                  </span>
-                </div>
-
-                <div className="flex items-center mt-3 text-sm text-gray-500 space-x-3">
-                  <span>{station.power}</span>
-                  <div className="flex items-center">
-                    <svg
-                      className="h-4 w-4 text-yellow-400 mr-1"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <span>{station.rating}</span>
-                  </div>
-                </div>
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {station.connectors.map((connector, idx) => (
-                    <span
-                      key={idx}
-                      className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium"
-                    >
-                      {connector}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="mt-4">
-                  <Link
-                    to={`/stations/${station.id}`}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded shadow-sm text-white bg-emerald-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </li>
+                station={station}
+                isSelected={selectedStationId === station.id}
+                onSelect={setSelectedStationId}
+              />
             ))}
           </ul>
         </div>
