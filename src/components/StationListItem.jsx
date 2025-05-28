@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
 const StationListItem = ({ station, isSelected, onSelect }) => {
   return (
@@ -72,3 +73,18 @@ const StationListItem = ({ station, isSelected, onSelect }) => {
 };
 
 export default StationListItem;
+StationListItem.propTypes = {
+  station: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    name: PropTypes.string.isRequired,
+    city: PropTypes.string.isRequired,
+    address: PropTypes.string.isRequired,
+    available: PropTypes.number.isRequired,
+    total: PropTypes.number.isRequired,
+    power: PropTypes.string.isRequired,
+    rating: PropTypes.string.isRequired,
+    connectors: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }).isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired,
+};
