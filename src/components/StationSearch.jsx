@@ -5,8 +5,10 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import ChargingFilters from "./ChargingFilters";
-const baseUrl = import.meta.env.VITE_API_URL_LOCAL; 
-const deployUrl = import.meta.env.VITE_API_URL_DEPLOY;
+
+const baseurl =
+  import.meta.env.VITE_API_URL_LOCAL 
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -35,7 +37,7 @@ const StationSearch = () => {
       if (coordinates && stationId === selectedStationId) {
         map.flyTo(coordinates, 10, {
           animate: true,
-          duration: 1
+          duration: 1,
         });
       }
     }, [coordinates, map, stationId, selectedStationId]);
@@ -57,48 +59,61 @@ const StationSearch = () => {
   useEffect(() => {
     const fetchStations = async () => {
       try {
-        const response = await axios.get(`${baseUrl}/stations`);
-        console.log("Stations:", response.data);
+        setLoading(true);
+        setError(null);
 
-        const transformedStations = response.data.map((station) => {
-          const available = station.chargers.filter(
+        const response = await axios.get(`${baseurl}/stations`);
+
+        const rawData = response.data;
+        if (!Array.isArray(rawData)) {
+          throw new Error(
+            "Formato de resposta inválido: era esperado um array"
+          );
+        }
+
+        const transformedStations = rawData.map((station) => {
+          const chargers = station.chargers || [];
+          const available = chargers.filter(
             (c) => c.chargerStatus === "AVAILABLE"
           ).length;
-          const total = station.chargers.length;
+          const total = chargers.length;
 
-          const connectors = Array.isArray(station.chargers)
-            ? [...new Set(
-              station.chargers
-                .map((c) => c.chargerType)
-                .filter((c) => typeof c === "string" && c.trim() !== "")
-            )]
-            : [];
+          const connectors = chargers
+            .map((c) => c.chargerType)
+            .filter((type) => typeof type === "string" && type.trim() !== "");
+          const uniqueConnectors = [...new Set(connectors)];
 
-          const maxPower = Math.max(
-            ...station.chargers.map((c) => c.chargingSpeed)
-          );
+          const maxPower =
+            chargers.length > 0
+              ? Math.max(...chargers.map((c) => c.chargingSpeed || 0))
+              : 0;
 
           return {
             id: station.id,
-            name: `Station ${station.id}`,
-            city: station.city || '',
-            address: `Operator ${station.operatorId}`,
-            coordinates: station.location
-              ? [station.location[0], station.location[1]]
-              : [38.7223, -9.1393],
+            name: `Estação ${station.id}`,
+            city: station.city || "Cidade desconhecida",
+            address: `Operador ${station.operatorId}`,
+            coordinates:
+              Array.isArray(station.location) && station.location.length === 2
+                ? [station.location[0], station.location[1]]
+                : [38.7223, -9.1393],
             available,
             total,
-            connectors,
+            connectors: uniqueConnectors,
             power: `${maxPower} kW`,
             rating: "4.5",
           };
         });
 
         setStations(transformedStations);
-        setLoading(false);
       } catch (err) {
-        console.error("Error fetching stations:", err);
-        setError("Failed to load stations");
+        console.error("Erro ao carregar estações:", err);
+        setError(
+          err.response?.data?.message ||
+            err.message ||
+            "Falha ao carregar estações"
+        );
+      } finally {
         setLoading(false);
       }
     };
@@ -132,7 +147,9 @@ const StationSearch = () => {
 
     let matchesChargerType = true;
     if (filters.connectorType !== "all") {
-      const connectors = Array.isArray(station.connectors) ? station.connectors : [];
+      const connectors = Array.isArray(station.connectors)
+        ? station.connectors
+        : [];
       matchesChargerType = connectors.includes(filters.connectorType);
     }
 
@@ -215,7 +232,7 @@ const StationSearch = () => {
           <MapContainer
             center={[41.5, -8.5]}
             zoom={5.5}
-            minZoom={5.5} 
+            minZoom={5.5}
             scrollWheelZoom={true}
             maxBounds={[
               [36.8, -10.0],
@@ -243,13 +260,19 @@ const StationSearch = () => {
                     style={{ minWidth: "220px", maxWidth: "250px" }}
                   >
                     <div className="flex justify-between items-center mb-1">
-                      <span className="font-semibold text-emerald-700 truncate">{station.name}</span>
-                      <span className="text-xs text-gray-500">{station.power}</span>
+                      <span className="font-semibold text-emerald-700 truncate">
+                        {station.name}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {station.power}
+                      </span>
                     </div>
 
                     <div className="flex justify-between text-xs text-gray-600 mb-1">
                       <span>{station.city}</span>
-                      <span>{station.available}/{station.total} available</span>
+                      <span>
+                        {station.available}/{station.total} available
+                      </span>
                     </div>
 
                     <div className="flex flex-wrap gap-1">
@@ -286,15 +309,16 @@ const StationSearch = () => {
             {filteredStations.map((station) => (
               <li
                 key={station.id}
-                className={`p-6 transition-colors cursor-pointer ${selectedStationId === station.id
+                className={`p-6 transition-colors cursor-pointer ${
+                  selectedStationId === station.id
                     ? "bg-emerald-50 border-l-4 border-emerald-500"
                     : "hover:bg-gray-50"
-                  }`}
+                }`}
                 onClick={() => {
                   setSelectedStationId(station.id);
-                  document.querySelector('.map-container')?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
+                  document.querySelector(".map-container")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
                   });
                 }}
               >
@@ -306,15 +330,14 @@ const StationSearch = () => {
                     <p className="text-sm text-gray-600 mt-1">
                       {station.address}
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {station.city}
-                    </p>
+                    <p className="text-sm text-gray-500 mt-1">{station.city}</p>
                   </div>
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-semibold ${station.available > 0
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                      }`}
+                    className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                      station.available > 0
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
                   >
                     {station.available}/{station.total} available
                   </span>
