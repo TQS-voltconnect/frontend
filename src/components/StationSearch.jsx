@@ -19,7 +19,7 @@ L.Icon.Default.mergeOptions({
 const StationSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
-    availableOnly: true,
+    availableOnly: false,
     connectorType: "all",
     powerLevel: "all",
     showAdvanced: false,
@@ -108,8 +108,8 @@ const StationSearch = () => {
         console.error("Erro ao carregar estações:", err);
         setError(
           err.response?.data?.message ||
-            err.message ||
-            "Falha ao carregar estações"
+          err.message ||
+          "Falha ao carregar estações"
         );
       } finally {
         setLoading(false);
@@ -120,12 +120,13 @@ const StationSearch = () => {
   }, []);
 
   const handleFilterChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, type, value, checked } = e.target;
     setFilters((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
+
 
   const toggleAdvanced = () => {
     setFilters((prev) => ({
@@ -212,13 +213,13 @@ const StationSearch = () => {
               aria-label="Search stations"
             />
           </div>
-
           <ChargingFilters
             filters={filters}
             onChange={handleFilterChange}
             showAdvanced={filters.showAdvanced}
             toggleAdvanced={toggleAdvanced}
           />
+
         </div>
       </div>
 
