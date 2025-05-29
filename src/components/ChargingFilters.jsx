@@ -21,11 +21,12 @@ export default function ChargingFilters({ filters, onChange, showAdvanced, toggl
               onChange={onChange}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 rounded-full peer-focus:ring-2 peer-focus:ring-green-300 peer-checked:bg-green-600 relative transition-colors">
-              <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-5"></span>
+            <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-green-600 transition-colors relative">
+              <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-5"></span>
             </div>
           </label>
         </div>
+
 
         {/* Connector Type Dropdown */}
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
