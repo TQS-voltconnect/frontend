@@ -1,37 +1,61 @@
-import React from 'react';
-
-const staticBookings = [
-  {
-    id: 1,
-    stationId: '1',
-    stationName: 'Central Lisbon Charging Hub',
-    stationAddress: 'Rua do Comércio 123, Lisboa',
-    date: '2025-05-20',
-    time: '10:00 - 11:00',
-    status: 'confirmed'
-  },
-  {
-    id: 2,
-    stationId: '2',
-    stationName: 'Porto EV Station',
-    stationAddress: 'Avenida dos Aliados 50, Porto',
-    date: '2025-05-22',
-    time: '14:00 - 15:00',
-    status: 'confirmed'
-  },
-  {
-    id: 3,
-    stationId: '3',
-    stationName: 'Coimbra Fast Charge',
-    stationAddress: 'Praça da República 7, Coimbra',
-    date: '2025-05-25',
-    time: '09:00 - 10:00',
-    status: 'pending'
-  }
-];
+import React, { useEffect, useState } from 'react';
 
 const MyBookings = () => {
-  const bookings = staticBookings;
+  const [bookings, setBookings] = useState([]);
+  const [stations, setStations] = useState({});
+  const [chargers, setChargers] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const baseurl = import.meta.env.VITE_API_URL_LOCAL;
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await fetch(`${baseurl}/reservations`);
+        if (!response.ok) throw new Error('Failed to fetch reservations');
+        const data = await response.json();
+
+        const stationPromises = data.map((res) =>
+          fetch(`${baseurl}/stations/${res.chargingStationId}`).then((r) => r.json())
+        );
+
+        const chargerPromises = data.map((res) =>
+          fetch(`${baseurl}/chargers/${res.chargerId}`).then((r) => r.json())
+        );
+
+        const stationResults = await Promise.all(stationPromises);
+        const chargerResults = await Promise.all(chargerPromises);
+
+        const stationMap = {};
+        stationResults.forEach((s) => {
+          stationMap[s.id] = s;
+        });
+
+        const chargerMap = {};
+        chargerResults.forEach((c) => {
+          chargerMap[c.id] = c;
+        });
+
+        setStations(stationMap);
+        setChargers(chargerMap);
+        setBookings(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, [baseurl]);
+
+  if (loading) {
+    return <div className="text-center py-8 text-gray-500 text-lg">Loading bookings...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-600">{error}</div>;
+  }
 
   if (bookings.length === 0) {
     return (
@@ -45,42 +69,42 @@ const MyBookings = () => {
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <h2 className="text-3xl font-semibold mb-8 text-emerald-700">My Charging Bookings</h2>
       <ul className="space-y-6">
-        {bookings.map((booking) => (
-          <li
-            key={booking.id}
-            className="border border-gray-200 rounded-lg shadow-sm p-6 bg-white hover:shadow-md transition-shadow"
-          >
-            <h3 className="text-xl font-bold text-gray-900 mb-1">
-              {booking.stationName}
-            </h3>
-            <p className="text-gray-600 mb-2">{booking.stationAddress}</p>
+        {bookings.map((booking) => {
+          const station = stations[booking.chargingStationId];
+          const charger = chargers[booking.chargerId];
 
-            <div className="flex flex-wrap gap-6 text-gray-700 text-sm font-medium">
-              <div className="flex items-center space-x-1">
-                <span className="font-semibold">Date:</span>
-                <span>{booking.date}</span>
+          return (
+            <li
+              key={booking.id}
+              className="border border-gray-200 rounded-lg shadow-sm p-6 bg-white hover:shadow-md transition-shadow"
+            >
+              <h3 className="text-xl font-bold text-gray-900 mb-1">
+                {station?.city || 'Unknown City'} Charging Station
+              </h3>
+
+              <div className="flex flex-wrap gap-6 text-gray-700 text-sm font-medium">
+                <div className="flex items-center space-x-1">
+                  <span className="font-semibold">Start Time:</span>
+                  <span>{new Date(booking.startTime).toLocaleString()}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="font-semibold">Duration:</span>
+                  <span>{booking.chargingTime} min</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="font-semibold">Price:</span>
+                  <span>€{booking.price?.toFixed(2)}</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-1">
-                <span className="font-semibold">Time:</span>
-                <span>{booking.time}</span>
+
+              <div className="mt-4 text-sm text-gray-700">
+                <p><strong>Charger Type:</strong> {charger?.chargerType}</p>
+                <p><strong>Speed:</strong> {charger?.chargingSpeed} kW</p>
+                <p><strong>Price per kWh:</strong> €{charger?.pricePerKWh?.toFixed(2)}</p>
               </div>
-              <div className="flex items-center space-x-1">
-                <span className="font-semibold">Status:</span>
-                <span
-                  className={`capitalize font-semibold ${
-                    booking.status === 'confirmed'
-                      ? 'text-green-600'
-                      : booking.status === 'pending'
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
-                  }`}
-                >
-                  {booking.status}
-                </span>
-              </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
