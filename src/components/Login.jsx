@@ -41,18 +41,21 @@ const LoginPage = ({ onLogin }) => {
                         required
                     />
 
-                    <label className="block mb-2 font-medium">Role</label>
-                    <div className="flex flex-wrap gap-4 mb-6">
+                    <label className="block mb-2 font-medium" htmlFor="role">
+                        Role
+                    </label>
+                    <div className="flex flex-wrap gap-4 mb-6" id="role">
                         {['DRIVER', 'OPERATOR', 'TECHNICIAN', 'ADMIN'].map((r) => (
                             <label key={r} className="inline-flex items-center space-x-2">
                                 <input
-                                type="radio"
-                                name="role"
-                                value={r}
-                                checked={role === r}
-                                onChange={() => setRole(r)}
-                                className="accent-emerald-600 focus:ring-emerald-500"
-                                aria-label={`Select role ${r}`}
+                                    id={`role-${r}`}
+                                    type="radio"
+                                    name="role"
+                                    value={r}
+                                    checked={role === r}
+                                    onChange={() => setRole(r)}
+                                    className="accent-emerald-600 focus:ring-emerald-500"
+                                    aria-label={`Select role ${r}`}
                                 />
 
                                 <span className="text-gray-700 capitalize">{r.toLowerCase()}</span>
