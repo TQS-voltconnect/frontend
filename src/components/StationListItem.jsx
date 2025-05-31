@@ -4,10 +4,9 @@ import PropTypes from "prop-types";
 
 const StationListItem = ({ station, isSelected, onSelect }) => {
   return (
-    <li
-      role="button"
-      tabIndex={0}
-      className={`p-6 transition-colors cursor-pointer ${
+    <button
+      type="button"
+      className={`p-6 transition-colors cursor-pointer text-left ${
         isSelected
           ? "bg-emerald-50 border-l-4 border-emerald-500"
           : "hover:bg-gray-50"
@@ -79,7 +78,7 @@ const StationListItem = ({ station, isSelected, onSelect }) => {
           View Details
         </Link>
       </div>
-    </li>
+    </button>
   );
 };
 

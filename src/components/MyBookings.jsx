@@ -46,7 +46,8 @@ const MyBookings = () => {
         setBookings(detailedBookings);
         setLoading(false);
       } catch (err) {
-        setError('Failed to load bookings');
+        console.error('Error fetching bookings:', err);
+        setError('Failed to load bookings. Please try again later.');
         setLoading(false);
       }
     };

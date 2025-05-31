@@ -1,4 +1,5 @@
-import { Filter, ChevronDown, Zap, Plug } from 'lucide-react';
+import PropTypes from 'prop-types';
+import { Zap, Plug } from 'lucide-react';
 
 export default function ChargingFilters({ filters, onChange, showAdvanced, toggleAdvanced }) {
   return (
@@ -20,6 +21,7 @@ export default function ChargingFilters({ filters, onChange, showAdvanced, toggl
               checked={filters.availableOnly}
               onChange={onChange}
               className="sr-only peer"
+              aria-label="Toggle Available Only"
             />
             <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-green-600 transition-colors relative">
               <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-5"></span>
@@ -80,3 +82,15 @@ export default function ChargingFilters({ filters, onChange, showAdvanced, toggl
     </div>
   );
 }
+
+// PropTypes validation
+ChargingFilters.propTypes = {
+  filters: PropTypes.shape({
+    availableOnly: PropTypes.bool.isRequired,
+    connectorType: PropTypes.string.isRequired,
+    powerLevel: PropTypes.string.isRequired,
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
+  showAdvanced: PropTypes.bool.isRequired,
+  toggleAdvanced: PropTypes.func.isRequired,
+};

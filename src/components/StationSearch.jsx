@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import ChargingFilters from "./ChargingFilters";
 import StationListItem from "./StationListItem";
+import PropTypes from "prop-types";
 
 const baseurl = import.meta.env.VITE_API_URL_LOCAL;
 
@@ -44,6 +45,13 @@ const StationSearch = () => {
     return null;
   };
 
+  // PropTypes validation
+  ZoomToStation.propTypes = {
+    coordinates: PropTypes.arrayOf(PropTypes.number).isRequired,
+    stationId: PropTypes.string.isRequired,
+    selectedStationId: PropTypes.string.isRequired,
+  };
+
   const greenBoltIcon = L.divIcon({
     className: "",
     html: `
@@ -55,6 +63,26 @@ const StationSearch = () => {
     iconAnchor: [15, 40],
   });
 
+  // Helper function to filter available chargers
+  const getAvailableChargers = (chargers) => {
+    return chargers.filter((c) => c.chargerStatus === "AVAILABLE").length;
+  };
+
+  // Helper function to get unique connectors
+  const getUniqueConnectors = (chargers) => {
+    const connectors = chargers
+      .map((c) => c.chargerType)
+      .filter((type) => typeof type === "string" && type.trim() !== "");
+    return [...new Set(connectors)];
+  };
+
+  // Helper function to get max power
+  const getMaxPower = (chargers) => {
+    return chargers.length > 0
+      ? Math.max(...chargers.map((c) => c.chargingSpeed || 0))
+      : 0;
+  };
+
   useEffect(() => {
     const fetchStations = async () => {
       try {
@@ -65,31 +93,21 @@ const StationSearch = () => {
         const rawData = response.data;
         if (!Array.isArray(rawData)) {
           throw new Error(
-            "Formato de resposta inválido: era esperado um array"
+            "Response format invalid: expected an array"
           );
         }
 
         const transformedStations = rawData.map((station) => {
           const chargers = station.chargers || [];
-          const available = chargers.filter(
-            (c) => c.chargerStatus === "AVAILABLE"
-          ).length;
+          const available = getAvailableChargers(chargers);
           const total = chargers.length;
-
-          const connectors = chargers
-            .map((c) => c.chargerType)
-            .filter((type) => typeof type === "string" && type.trim() !== "");
-          const uniqueConnectors = [...new Set(connectors)];
-
-          const maxPower =
-            chargers.length > 0
-              ? Math.max(...chargers.map((c) => c.chargingSpeed || 0))
-              : 0;
+          const uniqueConnectors = getUniqueConnectors(chargers);
+          const maxPower = getMaxPower(chargers);
 
           return {
             id: station.id,
             name: `Estação ${station.id}`,
-            city: station.city || "Cidade desconhecida",
+            city: station.city || "Unknown City",
             address: `Operador ${station.operatorId}`,
             coordinates:
               Array.isArray(station.location) && station.location.length === 2
@@ -105,11 +123,11 @@ const StationSearch = () => {
 
         setStations(transformedStations);
       } catch (err) {
-        console.error("Erro ao carregar estações:", err);
+        console.error("Error loading stations:", err);
         setError(
           err.response?.data?.message ||
           err.message ||
-          "Falha ao carregar estações"
+          "Failed to load stations"
         );
       } finally {
         setLoading(false);

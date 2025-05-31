@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CalendarIcon, ClockIcon, CheckIcon, XIcon } from '@heroicons/react/outline';
+import { ClockIcon, CheckIcon, XIcon } from '@heroicons/react/outline';
 
 const BookingPage = () => {
   const { stationId } = useParams();
@@ -167,14 +167,6 @@ const BookingPage = () => {
     } catch (err) {
       setError(err.message);
     }
-  };
-
-  const formatDate = (date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   if (loading)
@@ -354,13 +346,11 @@ const BookingPage = () => {
 
               {/* Select Date */}
               <div className="mb-6">
-                <h4 className="text-md font-medium text-gray-900 mb-3">
-                  Select Date
-                </h4>
+                <h4 className="text-md font-medium text-gray-900 mb-3">Select Date</h4>
                 <div className="grid grid-cols-3 sm:grid-cols-7 gap-2">
-                  {availableDates.map((day, index) => (
+                  {availableDates.map((day) => (
                     <button
-                      key={index}
+                      key={day.date.toISOString()}
                       onClick={() => handleDateSelect(day.date)}
                       className={`py-2 px-1 text-sm rounded-md flex flex-col items-center ${
                         day.date.toDateString() === selectedDate.toDateString()
@@ -373,9 +363,7 @@ const BookingPage = () => {
                           weekday: "short",
                         })}
                       </span>
-                      <span className="text-lg font-medium">
-                        {day.date.getDate()}
-                      </span>
+                      <span className="text-lg font-medium">{day.date.getDate()}</span>
                     </button>
                   ))}
                 </div>
@@ -392,7 +380,7 @@ const BookingPage = () => {
                   </p>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {selectedDaySlots.map((slot, index) => {
+                    {selectedDaySlots.map((slot) => {
                       let slotClassName;
                       if (selectedSlot?.time === slot.time) {
                         slotClassName = 'bg-emerald-600 text-white';
@@ -404,7 +392,7 @@ const BookingPage = () => {
 
                       return (
                         <button
-                          key={index}
+                          key={slot.time}
                           onClick={() => handleSlotSelect(slot)}
                           disabled={!slot.isAvailable}
                           className={`py-2 px-4 rounded-md text-sm flex items-center justify-center ${slotClassName}`}
