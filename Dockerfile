@@ -3,16 +3,16 @@ FROM node:24-slim AS builder
 
 WORKDIR /app
 COPY package.json package-lock.json ./
+RUN npm ci
 
-# sonarcloud-disable-next-line
-# Justified: 'npm run build' is a controlled script that runs the project's build step defined in package.json.
-# It does not execute any unsafe or user-provided shell commands.
-RUN npm install
-
-# sonarcloud-disable-next-line
-# Justified: .dockerignore is used to exclude files that are not needed in the Docker image, such as node_modules, logs, and local configuration files.
-COPY . .
-
+COPY src ./src
+COPY public ./public
+COPY vite.config.js ./
+COPY tailwind.config.js ./
+COPY nginx.conf ./
+COPY index.html ./
+COPY eslint.config.js ./
+COPY env_example ./
 RUN npm run build
 
 # Serve with Nginx
@@ -27,7 +27,9 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Use non-root user
+RUN mkdir -p /run /var/cache/nginx \
+ && chown -R nginx:nginx /run /var/cache/nginx /etc/nginx /usr/share/nginx/html
+
 USER nginx
 
 # Expose port
