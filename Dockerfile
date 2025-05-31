@@ -1,16 +1,18 @@
 # Build stage
-FROM node:18 AS builder
+FROM node:24-slim AS builder
 
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm install
-
-# sonarcloud-disable-next-line docker.copy
-COPY . .
 
 # sonarcloud-disable-next-line
 # Justified: 'npm run build' is a controlled script that runs the project's build step defined in package.json.
 # It does not execute any unsafe or user-provided shell commands.
+RUN npm install
+
+# sonarcloud-disable-next-line
+# Justified: .dockerignore is used to exclude files that are not needed in the Docker image, such as node_modules, logs, and local configuration files.
+COPY . .
+
 RUN npm run build
 
 # Serve with Nginx
