@@ -81,7 +81,6 @@ const BookingPage = () => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  // ...existing code...
   function generateAvailableSlots() {
     const slots = [];
     const startHour = 10;
@@ -102,7 +101,6 @@ const BookingPage = () => {
     }
     return slots;
   }
-  // ...existing code...
 
   const availableDates = station?.availableSlots || [];
   const selectedDaySlots =
@@ -323,28 +321,34 @@ const BookingPage = () => {
                   Select Charger
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {station.chargers.map((charger) => (
-                    <button
-                      key={charger.id}
-                      onClick={() => setSelectedCharger(charger)}
-                      disabled={charger.chargerStatus === "OCCUPIED"}
-                      className={`py-2 px-4 rounded-md text-sm flex flex-col items-start transition ${
-                        charger.chargerStatus === "OCCUPIED"
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          : selectedCharger?.id === charger.id
-                          ? "bg-emerald-600 text-white"
-                          : "bg-gray-100 hover:bg-gray-200 text-gray-800"
-                      }`}
-                    >
-                      <span className="font-medium">{charger.chargerType}</span>
-                      <span className="text-xs">
-                        {charger.chargingSpeed} kW – {charger.chargerStatus}
-                      </span>
-                      <span className="text-xs">
-                        €{charger.pricePerKWh.toFixed(2)} / kWh
-                      </span>
-                    </button>
-                  ))}
+                  {station.chargers.map((charger) => {
+                    const isOccupied = charger.chargerStatus === "OCCUPIED";
+                    const isSelected = selectedCharger?.id === charger.id;
+
+                    let chargerClassName;
+                    if (isOccupied) {
+                      chargerClassName = 'bg-gray-200 text-gray-400 cursor-not-allowed';
+                    } else if (isSelected) {
+                      chargerClassName = 'bg-emerald-600 text-white';
+                    } else {
+                      chargerClassName = 'bg-gray-100 hover:bg-gray-200 text-gray-800';
+                    }
+
+                    return (
+                      <button
+                        key={charger.id}
+                        onClick={() => setSelectedCharger(charger)}
+                        disabled={isOccupied}
+                        className={`py-2 px-4 rounded-md text-sm flex flex-col items-start transition ${chargerClassName}`}
+                      >
+                        <span className="font-medium">{charger.chargerType}</span>
+                        <span className="text-xs">{charger.chargingSpeed} kW – {charger.chargerStatus}</span>
+                        <span className="text-xs">
+                          €{charger.pricePerKWh.toFixed(2)} / kWh
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -388,26 +392,29 @@ const BookingPage = () => {
                   </p>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {selectedDaySlots.map((slot, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSlotSelect(slot)}
-                        disabled={!slot.isAvailable}
-                        className={`py-2 px-4 rounded-md text-sm flex items-center justify-center ${
-                          selectedSlot?.time === slot.time
-                            ? "bg-emerald-600 text-white"
-                            : slot.isAvailable
-                            ? "bg-gray-100 hover:bg-gray-200 text-gray-800"
-                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        }`}
-                      >
-                        <ClockIcon className="h-4 w-4 mr-2" />
-                        {slot.time.split("-")[0].trim()}
-                        {!slot.isAvailable && (
-                          <XIcon className="h-4 w-4 ml-2 text-red-500" />
-                        )}
-                      </button>
-                    ))}
+                    {selectedDaySlots.map((slot, index) => {
+                      let slotClassName;
+                      if (selectedSlot?.time === slot.time) {
+                        slotClassName = 'bg-emerald-600 text-white';
+                      } else if (slot.isAvailable) {
+                        slotClassName = 'bg-gray-100 hover:bg-gray-200 text-gray-800';
+                      } else {
+                        slotClassName = 'bg-gray-100 text-gray-400 cursor-not-allowed';
+                      }
+
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => handleSlotSelect(slot)}
+                          disabled={!slot.isAvailable}
+                          className={`py-2 px-4 rounded-md text-sm flex items-center justify-center ${slotClassName}`}
+                        >
+                          <ClockIcon className="h-4 w-4 mr-2" />
+                          {slot.time.split('-')[0].trim()}
+                          {!slot.isAvailable && <XIcon className="h-4 w-4 ml-2 text-red-500" />}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
