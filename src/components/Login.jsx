@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import loginImage from '/src/assets/login.png'; // Importando a imagem de login
+import PropTypes from 'prop-types';
+import loginImage from '../assets/login.png';
 
 const LoginPage = ({ onLogin }) => {
     const [name, setName] = useState('');
@@ -51,6 +52,7 @@ const LoginPage = ({ onLogin }) => {
                                 checked={role === r}
                                 onChange={() => setRole(r)}
                                 className="accent-emerald-600 focus:ring-emerald-500"
+                                aria-label={`Select role ${r}`}
                                 />
 
                                 <span className="text-gray-700 capitalize">{r.toLowerCase()}</span>
@@ -68,6 +70,10 @@ const LoginPage = ({ onLogin }) => {
             </div>
         </div>
     );
+};
+
+LoginPage.propTypes = {
+    onLogin: PropTypes.func.isRequired,
 };
 
 export default LoginPage;
