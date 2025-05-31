@@ -264,50 +264,69 @@ const BookingPage = () => {
               <div className="mb-6">
                 <h4 className="text-md font-medium text-gray-900 mb-3">Select Charger</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {station.chargers.map((charger) => (
-                    <button
-                      key={charger.id}
-                      onClick={() => setSelectedCharger(charger)}
-                      disabled={charger.chargerStatus === "OCCUPIED"}
-                      className={`py-2 px-4 rounded-md text-sm flex flex-col items-start transition ${charger.chargerStatus === "OCCUPIED"
+                  {station.chargers.map((charger) => {
+                    const isSelected = selectedCharger?.id === charger.id;
+                    const isOccupied = charger.chargerStatus === "OCCUPIED";
+
+                    const buttonClass = `py-2 px-4 rounded-md text-sm flex flex-col items-start transition ${
+                      isOccupied
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : selectedCharger?.id === charger.id
+                        : isSelected
                           ? 'bg-emerald-600 text-white'
                           : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-                        }`}
-                    >
-                      <span className="font-medium">{charger.chargerType}</span>
-                      <span className="text-xs">{charger.chargingSpeed} kW – {charger.chargerStatus}</span>
-                      <span className="text-xs">
-                        €{charger.pricePerKWh.toFixed(2)} / kWh
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                    }`;
 
+                    return (
+                      <button
+                        key={charger.id}
+                        onClick={() => setSelectedCharger(charger)}
+                        disabled={isOccupied}
+                        className={buttonClass}
+                      >
+                        <span className="font-medium">{charger.chargerType}</span>
+                        <span className="text-xs">
+                          {charger.chargingSpeed} kW – {charger.chargerStatus}
+                        </span>
+                        <span className="text-xs">
+                          €{charger.pricePerKWh.toFixed(2)} / kWh
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Select Date */}
               <div className="mb-6">
                 <h4 className="text-md font-medium text-gray-900 mb-3">Select Date</h4>
                 <div className="grid grid-cols-3 sm:grid-cols-7 gap-2">
-                  {availableDates.map((day, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleDateSelect(day.date)}
-                      className={`py-2 px-1 text-sm rounded-md flex flex-col items-center ${day.date.toDateString() === selectedDate.toDateString()
-                        ? 'bg-emerald-100 text-emerald-800 font-medium'
-                        : 'hover:bg-gray-100'
-                        }`}
-                    >
-                      <span>{day.date.toLocaleDateString('en-US', { weekday: 'short' })}</span>
-                      <span className="text-lg font-medium">{day.date.getDate()}</span>
-                    </button>
-                  ))}
+                  {selectedDaySlots.map((slot, index) => {
+                    const isSelected = selectedSlot?.time === slot.time;
+                    const isAvailable = slot.isAvailable;
+
+                    const buttonClass = `py-2 px-4 rounded-md text-sm flex items-center justify-center ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white'
+                        : isAvailable
+                          ? 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    }`;
+
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => handleSlotSelect(slot)}
+                        disabled={!isAvailable}
+                        className={buttonClass}
+                      >
+                        <ClockIcon className="h-4 w-4 mr-2" />
+                        {slot.time.split('-')[0].trim()}
+                        {!isAvailable && <XIcon className="h-4 w-4 ml-2 text-red-500" />}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-
-
 
               {/* Select Slot */}
               <div className="mb-6">
