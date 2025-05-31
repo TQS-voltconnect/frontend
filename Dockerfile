@@ -1,16 +1,18 @@
 # Build stage
-FROM node:18 AS builder
+FROM node:24-slim AS builder
 
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm install --ignore-scripts
 
-# sonarcloud-disable-next-line docker.copy
-COPY . .
-
-# sonarcloud-disable-next-line
-# Justified: 'npm run build' is a controlled script that runs the project's build step defined in package.json.
-# It does not execute any unsafe or user-provided shell commands.
+COPY src ./src
+COPY public ./public
+COPY vite.config.js ./
+COPY tailwind.config.js ./
+COPY nginx.conf ./
+COPY index.html ./
+COPY eslint.config.js ./
+COPY env_example ./
 RUN npm run build
 
 # Serve with Nginx
@@ -25,7 +27,11 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Use non-root user
+# Set permissions for Nginx user
+RUN mkdir -p /run /var/cache/nginx \
+ && chown -R nginx:nginx /run /var/cache/nginx /etc/nginx /usr/share/nginx/html
+
+# Set the user to nginx
 USER nginx
 
 # Expose port
