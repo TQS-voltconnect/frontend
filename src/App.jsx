@@ -1,21 +1,30 @@
-import { useState } from "react";
-import "./index.css";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './components/HomePage';
+import StationSearch from './components/StationSearch';
+import BookingPage from './components/BookingPage';
+import MyBookings from './components/MyBookings';
+import Navbar from './components/Navbar';
+import Login from './components/Login';
+import { useState } from 'react';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [bookings, setBookings] = useState([]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600 mb-4">
-        React + Tailwind Test
-      </h1>
-      <button
-        onClick={() => setCount(count + 1)}
-        className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded shadow transition duration-300"
-      >
-        Clicked {count} {count === 1 ? "time" : "times"}
-      </button>
-    </div>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/search" element={<StationSearch />} />
+        <Route path="/stations/:stationId" element={<BookingPage />} />
+        <Route
+          path="/booking/:stationId"
+          element={<BookingPage bookings={bookings} setBookings={setBookings} />}
+        />
+        <Route path="/my-bookings" element={<MyBookings bookings={bookings} />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </Router>
   );
 }
 
