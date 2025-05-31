@@ -324,11 +324,15 @@ const BookingPage = () => {
                   {station.chargers.map((charger) => {
                     const isOccupied = charger.chargerStatus === "OCCUPIED";
                     const isSelected = selectedCharger?.id === charger.id;
-                    const chargerClassName = isOccupied
-                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      : isSelected
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800';
+
+                    let chargerClassName;
+                    if (isOccupied) {
+                      chargerClassName = 'bg-gray-200 text-gray-400 cursor-not-allowed';
+                    } else if (isSelected) {
+                      chargerClassName = 'bg-emerald-600 text-white';
+                    } else {
+                      chargerClassName = 'bg-gray-100 hover:bg-gray-200 text-gray-800';
+                    }
 
                     return (
                       <button
@@ -389,11 +393,14 @@ const BookingPage = () => {
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {selectedDaySlots.map((slot, index) => {
-                      const slotClassName = selectedSlot?.time === slot.time
-                        ? 'bg-emerald-600 text-white'
-                        : slot.isAvailable
-                          ? 'bg-gray-100 hover:bg-gray-200 text-gray-800'
-                          : 'bg-gray-100 text-gray-400 cursor-not-allowed';
+                      let slotClassName;
+                      if (selectedSlot?.time === slot.time) {
+                        slotClassName = 'bg-emerald-600 text-white';
+                      } else if (slot.isAvailable) {
+                        slotClassName = 'bg-gray-100 hover:bg-gray-200 text-gray-800';
+                      } else {
+                        slotClassName = 'bg-gray-100 text-gray-400 cursor-not-allowed';
+                      }
 
                       return (
                         <button
