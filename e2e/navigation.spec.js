@@ -29,7 +29,7 @@ test.describe('Navigation Tests', () => {
     await searchLink.waitFor({ state: 'visible' });
     await searchLink.click();
     
-    await expect(page).toHaveURL(/.*\/search/);
+    await expect(page).toHaveURL(/^[^/]*\/search$/);
   });
 
   test('should display and interact with login form', async ({ page }) => {

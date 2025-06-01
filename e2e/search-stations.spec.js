@@ -10,7 +10,7 @@ test.describe('Search Stations Page', () => {
     const page = await browser.newPage();
     try {
       const response = await page.goto(VITE_URL);
-      if (!response || !response.ok()) {
+      if (!response?.ok()) {
         throw new Error(`Frontend server is not running on port ${VITE_PORT}. Please start it with npm run dev`);
       }
     } catch (error) {
@@ -67,7 +67,7 @@ test.describe('Search Stations Page', () => {
 
     await page.waitForFunction(() => {
       const header = document.querySelector('h2');
-      return header && header.textContent.includes('Found');
+      return header?.textContent.includes('Found');
     });
 
     const stationsList = page.locator('ul');
@@ -75,7 +75,7 @@ test.describe('Search Stations Page', () => {
 
     const hasStations = await page.locator('ul button').count() > 0;
     if (hasStations) {
-      const availabilityText = page.getByText(/[1-9][0-9]* available/);
+      const availabilityText = page.getByText(/\d+ available/);
       await expect(availabilityText).toBeVisible();
     }
   });
