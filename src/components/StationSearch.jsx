@@ -271,12 +271,12 @@ const StationSearch = () => {
                   click: () => setSelectedStationId(station.id),
                 }}
               >
-                <Popup>
+                <Popup offset={[0, -20]}>
                   <div className="text-sm">
                     <strong>{station.name}</strong>
                     <p>{station.city}</p>
                     <p>
-                      {station.available}/{station.total} disponíveis
+                      {station.available}/{station.total} available
                     </p>
                     <p>{station.power}</p>
                   </div>
