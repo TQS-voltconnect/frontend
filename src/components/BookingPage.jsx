@@ -85,19 +85,30 @@ const BookingPage = () => {
     const slots = [];
     const startHour = 10;
     const endHour = 19;
-    const today = new Date();
+    const now = new Date();
+    
     for (let day = 0; day < 7; day++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + day);
+      const date = new Date(now);
+      date.setDate(now.getDate() + day);
       const dateSlots = [];
-      for (let hour = startHour; hour < endHour; hour++) {
+      
+      // Se for hoje, começar da hora atual
+      const effectiveStartHour = date.getDate() === now.getDate() 
+        ? Math.max(startHour, now.getHours()) // Removido o +1 para permitir a hora atual
+        : startHour;
+      
+      for (let hour = effectiveStartHour; hour < endHour; hour++) {
         dateSlots.push({
           time: `${hour}:00 - ${hour + 1}:00`,
           isAvailable: true,
           isBooked: false,
         });
       }
-      slots.push({ date, slots: dateSlots });
+      
+      // Só adicionar o dia se tiver slots disponíveis
+      if (dateSlots.length > 0) {
+        slots.push({ date, slots: dateSlots });
+      }
     }
     return slots;
   }
@@ -143,6 +154,8 @@ const BookingPage = () => {
       startTime: startDateTime.toISOString(),
     };
 
+    console.log('Attempting to create reservation with payload:', newBooking);
+
     try {
       const response = await fetch(`${baseurl}/reservations`, {
         method: "POST",
@@ -150,7 +163,12 @@ const BookingPage = () => {
         body: JSON.stringify(newBooking),
       });
 
-      if (!response.ok) throw new Error("Failed to confirm booking.");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        const errorMessage = errorData?.message || 'Failed to confirm booking. Please try again.';
+        throw new Error(errorMessage);
+      }
+      
       const createdReservation = await response.json();
 
       setBookingDetails({
