@@ -75,7 +75,7 @@ test.describe('Search Stations Page', () => {
 
     const hasStations = await page.locator('ul button').count() > 0;
     if (hasStations) {
-      const availabilityText = page.getByText(/\d+ available/);
+      const availabilityText = page.getByText(/^\d{1,3} available$/);
       await expect(availabilityText).toBeVisible();
     }
   });

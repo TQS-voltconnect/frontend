@@ -38,7 +38,7 @@ test.describe('Navigation Tests', () => {
     const signInButton = page.locator('a', { hasText: 'Sign In' });
     await signInButton.click();
     
-    await expect(page).toHaveURL(/.*\/login/);
+    await expect(page).toHaveURL(/^[^/]*\/login$/);
     
     await expect(page.locator('h2', { hasText: 'Login' })).toBeVisible();
     await expect(page.locator('input#name')).toBeVisible();
