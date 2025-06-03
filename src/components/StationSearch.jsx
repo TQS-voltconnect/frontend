@@ -6,8 +6,9 @@ import L from "leaflet";
 import ChargingFilters from "./ChargingFilters";
 import StationListItem from "./StationListItem";
 import PropTypes from "prop-types";
+import { baseUrl } from "../consts";
 
-const baseurl = import.meta.env.VITE_API_URL_LOCAL;
+const baseurl = baseUrl;
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({

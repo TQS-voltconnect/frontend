@@ -12,30 +12,25 @@ COPY tailwind.config.js ./
 COPY nginx.conf ./
 COPY index.html ./
 COPY eslint.config.js ./
-COPY .env ./
+COPY env_example ./
 RUN npm run build
 
 # Serve with Nginx
 FROM nginx:alpine
 
-# Remove default nginx config
 RUN rm /etc/nginx/conf.d/default.conf
-
-# Copy custom Nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Set permissions for Nginx user
-RUN mkdir -p /run /var/cache/nginx \
- && chown -R nginx:nginx /run /var/cache/nginx /etc/nginx /usr/share/nginx/html
+# Copiar o script entrypoint que vai criar o config.js em runtime
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# Set the user to nginx
+RUN mkdir -p /run /var/cache/nginx \
+    && chown -R nginx:nginx /run /var/cache/nginx /etc/nginx /usr/share/nginx/html
+
 USER nginx
 
-# Expose port
 EXPOSE 80
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/entrypoint.sh"]
