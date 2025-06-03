@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ClockIcon, CheckIcon, XIcon } from '@heroicons/react/outline';
+import { baseUrl } from '../consts';
 
 const BookingPage = () => {
   const { stationId } = useParams();
   const navigate = useNavigate();
-  const baseurl = import.meta.env.VITE_API_URL_LOCAL;
+  const baseurl = baseUrl;
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState(null);
