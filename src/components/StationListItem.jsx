@@ -6,10 +6,13 @@ import StarRating from "./StarRating";
 const StationListItem = ({ station, isSelected, onSelect, reviews, avgRating, reviewsLoading, showModal, setShowModal }) => {
   const reviewsCount = reviews ? reviews.length : 0;
 
+  const availabilityClass = station.available > 0
+  ? (isSelected ? "bg-emerald-600 text-white" : "bg-green-100 text-green-800")
+  : "bg-red-100 text-red-800";
+
   return (
-    <div
-      tabIndex={0}
-      role="button"
+    <button
+      type="button"
       className={`w-full transition-colors cursor-pointer text-left outline-none border-l-4 ${
         isSelected
           ? "bg-emerald-50 border-emerald-500 shadow-md"
@@ -41,13 +44,7 @@ const StationListItem = ({ station, isSelected, onSelect, reviews, avgRating, re
             <p className="text-sm text-gray-500 mt-1">{station.city}</p>
           </div>
           <span
-            className={`text-xs px-2 py-1 rounded-full font-semibold ${
-              station.available > 0
-                ? isSelected
-                  ? "bg-emerald-600 text-white"
-                  : "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
+          className={`text-xs px-2 py-1 rounded-full font-semibold ${availabilityClass}`}
           >
             {station.available}/{station.total} available
           </span>
@@ -136,7 +133,7 @@ const StationListItem = ({ station, isSelected, onSelect, reviews, avgRating, re
           </div>
         </div>
       )}
-    </div>
+    </button>
   );
 };
 

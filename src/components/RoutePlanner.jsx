@@ -18,6 +18,7 @@ import {
   LightningBoltIcon,
 } from "@heroicons/react/outline";
 import PropTypes from 'prop-types';
+import { baseUrl } from '../consts';
 
 // Fix for default marker icons in Leaflet with React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -30,7 +31,6 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-// Novo componente para seleção de cidade
 function CitySelect({ label, value, onChange, options }) {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200 flex-1 flex flex-col">
@@ -69,6 +69,13 @@ function CitySelect({ label, value, onChange, options }) {
   );
 }
 
+CitySelect.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  options: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+
 const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
   const [startLocation, setStartLocation] = useState("");
   const [endLocation, setEndLocation] = useState("");
@@ -80,7 +87,6 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const vehiclesPerPage = 9;
-  const baseurl = import.meta.env.VITE_API_URL_LOCAL;
 
   const cityCoordinates = {
     Lisboa: [38.7169, -9.1399],
@@ -108,7 +114,7 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get(`${baseurl}/stations`);
+        const response = await axios.get(`${baseUrl}/stations`);
         setStations(response.data);
       } catch (err) {
         console.error("Error loading stations:", err);
@@ -370,19 +376,23 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
                     color="#059669"
                     weight={3}
                   />
-                  {route.coordinates.map((coord, index) => (
-                    <Marker key={index} position={coord}>
-                      <Popup>
-                        <div className="text-sm font-medium">
-                          {index === 0
-                            ? "Start"
-                            : index === route.coordinates.length - 1
-                              ? "End"
-                              : `Stop ${index}`}
-                        </div>
-                      </Popup>
-                    </Marker>
-                  ))}
+                  {route.coordinates.map((coord, index) => {
+                    let popupText;
+                    if (index === 0) {
+                      popupText = "Start";
+                    } else if (index === route.coordinates.length - 1) {
+                      popupText = "End";
+                    } else {
+                      popupText = `Stop ${index}`;
+                    }
+                    return (
+                      <Marker key={`${coord[0]}-${coord[1]}`} position={coord}>
+                        <Popup>
+                          <div className="text-sm font-medium">{popupText}</div>
+                        </Popup>
+                      </Marker>
+                    );
+                  })}
                 </MapContainer>
               </div>
             </div>
@@ -408,7 +418,7 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
               ) : (
                 chargingStops.map((stop, index) => (
                   <div
-                    key={index}
+                    key={`${stop.city}-${stop.batteryLevel}-${index}`}
                     className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200"
                   >
                     <div className="flex items-center mb-4">
