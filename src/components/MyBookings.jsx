@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { baseUrl } from '../consts';
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const baseurl = import.meta.env.VITE_API_URL_LOCAL;
+  const baseurl = baseUrl;
 
   useEffect(() => {
     const fetchBookings = async () => {
