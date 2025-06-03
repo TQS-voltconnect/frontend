@@ -6,6 +6,7 @@ import MyBookings from './components/MyBookings';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
 import RoutePlanner from './components/RoutePlanner';
+import Dashboard from './components/Dashboard';
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
             />
           } 
         />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );
