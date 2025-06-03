@@ -8,8 +8,6 @@ import StationListItem from "./StationListItem";
 import PropTypes from "prop-types";
 import { baseUrl } from "../consts";
 
-const baseurl = baseUrl;
-
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -90,7 +88,7 @@ const StationSearch = () => {
         setLoading(true);
         setError(null);
 
-        const response = await axios.get(`${baseurl}/stations`);
+        const response = await axios.get(`${baseUrl}/stations`);
         const rawData = response.data;
         if (!Array.isArray(rawData)) {
           throw new Error(
