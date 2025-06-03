@@ -17,6 +17,7 @@ import {
   CurrencyEuroIcon,
   LightningBoltIcon,
 } from "@heroicons/react/outline";
+import PropTypes from 'prop-types';
 
 // Fix for default marker icons in Leaflet with React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -89,8 +90,8 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  const filteredVehicles = vehicles.filter((vehicle) =>
-    `${vehicle.brand} ${vehicle.model}`
+  const filteredVehicles = vehicles.filter((vehicleItem) =>
+    `${vehicleItem.brand} ${vehicleItem.model}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -254,11 +255,13 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
           className="appearance-none block w-full px-4 py-3 pr-10 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 cursor-pointer"
         >
           <option value="">Select a city</option>
-          {Object.keys(cityCoordinates).sort().map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
+          {Object.keys(cityCoordinates)
+            .sort((a, b) => a.localeCompare(b, 'pt'))
+            .map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
         </select>
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -290,11 +293,13 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
           className="appearance-none block w-full px-4 py-3 pr-10 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 cursor-pointer"
         >
           <option value="">Select a city</option>
-          {Object.keys(cityCoordinates).sort().map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
+          {Object.keys(cityCoordinates)
+            .sort((a, b) => a.localeCompare(b, 'pt'))
+            .map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
         </select>
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -467,6 +472,30 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
       </div>
     </div>
   );
+};
+
+RoutePlanner.propTypes = {
+  vehicle: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    brand: PropTypes.string,
+    model: PropTypes.string,
+    release_year: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    usable_battery_size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    range: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    image_url: PropTypes.string,
+  }),
+  setSelectedVehicle: PropTypes.func.isRequired,
+  vehicles: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      brand: PropTypes.string,
+      model: PropTypes.string,
+      release_year: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      usable_battery_size: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      range: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      image_url: PropTypes.string,
+    })
+  ).isRequired,
 };
 
 export default RoutePlanner;
