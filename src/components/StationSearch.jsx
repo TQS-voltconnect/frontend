@@ -116,7 +116,7 @@ const StationSearch = () => {
           };
         });
         setStations(transformedStations);
-        const reviewsRes = await fetch(`${baseurl}/reviews`);
+        const reviewsRes = await fetch(`${baseUrl}/reviews`);
         const allReviewsData = await reviewsRes.json();
         setAllReviews(allReviewsData);
         const map = {};
