@@ -30,6 +30,45 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
+// Novo componente para seleção de cidade
+function CitySelect({ label, value, onChange, options }) {
+  return (
+    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200 flex-1 flex flex-col">
+      <div className="flex items-start mb-3">
+        <div className="bg-emerald-100 p-2 rounded-full mr-3">
+          <MapIcon className="h-5 w-5 text-emerald-600" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">{label}</h3>
+        </div>
+      </div>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={onChange}
+          className="appearance-none block w-full px-4 py-3 pr-10 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 cursor-pointer"
+        >
+          <option value="">Select a city</option>
+          {options.map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
   const [startLocation, setStartLocation] = useState("");
   const [endLocation, setEndLocation] = useState("");
@@ -236,83 +275,20 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-  <div className="space-y-4 h-full flex flex-col">
-    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200 flex-1 flex flex-col">
-      <div className="flex items-start mb-3">
-        <div className="bg-emerald-100 p-2 rounded-full mr-3">
-          <MapIcon className="h-5 w-5 text-emerald-600" />
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Start Location
-          </h3>
-        </div>
-      </div>
-      <div className="relative">
-        <select
-          value={startLocation}
-          onChange={(e) => setStartLocation(e.target.value)}
-          className="appearance-none block w-full px-4 py-3 pr-10 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 cursor-pointer"
-        >
-          <option value="">Select a city</option>
-          {Object.keys(cityCoordinates)
-            .sort((a, b) => a.localeCompare(b, 'pt'))
-            .map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-      </div>
-    </div>
-    
-    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200 flex-1 flex flex-col">
-      <div className="flex items-start mb-3">
-        <div className="bg-emerald-100 p-2 rounded-full mr-3">
-          <MapIcon className="h-5 w-5 text-emerald-600" />
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            End Location
-          </h3>
-        </div>
-      </div>
-      <div className="relative">
-        <select
-          value={endLocation}
-          onChange={(e) => setEndLocation(e.target.value)}
-          className="appearance-none block w-full px-4 py-3 pr-10 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 cursor-pointer"
-        >
-          <option value="">Select a city</option>
-          {Object.keys(cityCoordinates)
-            .sort((a, b) => a.localeCompare(b, 'pt'))
-            .map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-      </div>
-    </div>
-  </div>
+            <div className="space-y-4 h-full flex flex-col">
+              <CitySelect
+                label="Start Location"
+                value={startLocation}
+                onChange={(e) => setStartLocation(e.target.value)}
+                options={Object.keys(cityCoordinates).sort((a, b) => a.localeCompare(b, 'pt'))}
+              />
+              <CitySelect
+                label="End Location"
+                value={endLocation}
+                onChange={(e) => setEndLocation(e.target.value)}
+                options={Object.keys(cityCoordinates).sort((a, b) => a.localeCompare(b, 'pt'))}
+              />
+            </div>
 
             {vehicle && (
               <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200 h-full flex flex-col justify-between">
