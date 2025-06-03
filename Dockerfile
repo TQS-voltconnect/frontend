@@ -12,7 +12,7 @@ COPY tailwind.config.js ./
 COPY nginx.conf ./
 COPY index.html ./
 COPY eslint.config.js ./
-COPY env_example ./
+COPY .env ./
 RUN npm run build
 
 # Serve with Nginx
