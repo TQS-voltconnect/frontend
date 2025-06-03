@@ -74,8 +74,8 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
         console.error("Error loading stations:", err);
         setError(
           err.response?.data?.message ||
-            err.message ||
-            "Failed to load stations"
+          err.message ||
+          "Failed to load stations"
         );
       } finally {
         setLoading(false);
@@ -152,13 +152,29 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
             <h4 className="text-md font-medium text-gray-900 mb-3">
               Select Vehicle
             </h4>
-            <input
-              type="text"
-              placeholder="Search vehicle by brand or model..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 mb-4"
-            />
+            <div className="mb-4 relative rounded-md shadow-sm">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  className="h-5 w-5 text-gray-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <input
+                type="text"
+                className="focus:ring-green-500 focus:border-green-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-3 border"
+                placeholder="Search vehicle by brand or model..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Search vehicles"
+              />
+            </div>
             {searchTerm && (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -169,11 +185,10 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
                         setSelectedVehicle(vehicleItem);
                         setSearchTerm("");
                       }}
-                      className={`p-3 rounded-md border text-left ${
-                        vehicle?.id === vehicleItem.id
-                          ? "border-emerald-600 bg-emerald-50"
-                          : "border-gray-300"
-                      }`}
+                      className={`p-3 rounded-md border text-left ${vehicle?.id === vehicleItem.id
+                        ? "border-emerald-600 bg-emerald-50"
+                        : "border-gray-300"
+                        }`}
                     >
                       <div className="font-semibold">
                         {vehicleItem.brand} {vehicleItem.model}
@@ -220,59 +235,82 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="space-y-4">
-              <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200">
-                <div className="flex items-start mb-3">
-                  <div className="bg-emerald-100 p-2 rounded-full mr-3">
-                    <MapIcon className="h-5 w-5 text-emerald-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Start Location
-                    </h3>
-                  </div>
-                </div>
-                <select
-                  value={startLocation}
-                  onChange={(e) => setStartLocation(e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-lg py-3"
-                >
-                  <option value="">Select a city</option>
-                  {Object.keys(cityCoordinates).map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200">
-                <div className="flex items-start mb-3">
-                  <div className="bg-emerald-100 p-2 rounded-full mr-3">
-                    <MapIcon className="h-5 w-5 text-emerald-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      End Location
-                    </h3>
-                  </div>
-                </div>
-                <select
-                  value={endLocation}
-                  onChange={(e) => setEndLocation(e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 text-lg py-3"
-                >
-                  <option value="">Select a city</option>
-                  {Object.keys(cityCoordinates).map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+  <div className="space-y-4 h-full flex flex-col">
+    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200 flex-1 flex flex-col">
+      <div className="flex items-start mb-3">
+        <div className="bg-emerald-100 p-2 rounded-full mr-3">
+          <MapIcon className="h-5 w-5 text-emerald-600" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Start Location
+          </h3>
+        </div>
+      </div>
+      <div className="relative">
+        <select
+          value={startLocation}
+          onChange={(e) => setStartLocation(e.target.value)}
+          className="appearance-none block w-full px-4 py-3 pr-10 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 cursor-pointer"
+        >
+          <option value="">Select a city</option>
+          {Object.keys(cityCoordinates).sort().map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+    
+    <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200 flex-1 flex flex-col">
+      <div className="flex items-start mb-3">
+        <div className="bg-emerald-100 p-2 rounded-full mr-3">
+          <MapIcon className="h-5 w-5 text-emerald-600" />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            End Location
+          </h3>
+        </div>
+      </div>
+      <div className="relative">
+        <select
+          value={endLocation}
+          onChange={(e) => setEndLocation(e.target.value)}
+          className="appearance-none block w-full px-4 py-3 pr-10 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 cursor-pointer"
+        >
+          <option value="">Select a city</option>
+          {Object.keys(cityCoordinates).sort().map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
 
             {vehicle && (
-              <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+              <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200 hover:shadow-lg transition-shadow duration-200 h-full flex flex-col justify-between">
                 <div className="flex items-start mb-3">
                   <div className="bg-emerald-100 p-2 rounded-full mr-3">
                     <TruckIcon className="h-5 w-5 text-emerald-600" />
@@ -296,11 +334,11 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="bg-gray-50 p-2 rounded">
+                  <div className="bg-gray-50 p-2 rounded border border-gray-200">
                     <p className="text-gray-500">Year</p>
                     <p className="font-medium">{vehicle.release_year}</p>
                   </div>
-                  <div className="bg-gray-50 p-2 rounded">
+                  <div className="bg-gray-50 p-2 rounded border border-gray-200">
                     <p className="text-gray-500">Battery</p>
                     <p className="font-medium">
                       {vehicle.usable_battery_size}kWh
@@ -358,8 +396,8 @@ const RoutePlanner = ({ vehicle, setSelectedVehicle, vehicles }) => {
                           {index === 0
                             ? "Start"
                             : index === route.coordinates.length - 1
-                            ? "End"
-                            : `Stop ${index}`}
+                              ? "End"
+                              : `Stop ${index}`}
                         </div>
                       </Popup>
                     </Marker>
