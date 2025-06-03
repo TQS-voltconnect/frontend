@@ -8,8 +8,6 @@ import StationListItem from "./StationListItem";
 import PropTypes from "prop-types";
 import { baseUrl } from "../consts";
 
-const baseurl = baseUrl;
-
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -89,8 +87,8 @@ const StationSearch = () => {
       try {
         setLoading(true);
         setError(null);
-        setReviewsLoading(true);
-        const response = await axios.get(`${baseurl}/stations`);
+
+        const response = await axios.get(`${baseUrl}/stations`);
         const rawData = response.data;
         if (!Array.isArray(rawData)) {
           throw new Error("Response format invalid: expected an array");
@@ -118,7 +116,7 @@ const StationSearch = () => {
           };
         });
         setStations(transformedStations);
-        const reviewsRes = await fetch(`${baseurl}/reviews`);
+        const reviewsRes = await fetch(`${baseUrl}/reviews`);
         const allReviewsData = await reviewsRes.json();
         setAllReviews(allReviewsData);
         const map = {};

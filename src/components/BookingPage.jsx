@@ -6,7 +6,6 @@ import { baseUrl } from '../consts';
 const BookingPage = () => {
   const { stationId } = useParams();
   const navigate = useNavigate();
-  const baseurl = baseUrl;
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -39,7 +38,7 @@ const BookingPage = () => {
   useEffect(() => {
     const fetchStation = async () => {
       try {
-        const response = await fetch(`${baseurl}/stations/${stationId}`);
+        const response = await fetch(`${baseUrl}/stations/${stationId}`);
         if (!response.ok) throw new Error("Failed to fetch station details");
         const data = await response.json();
         const processedStation = {
@@ -64,7 +63,7 @@ const BookingPage = () => {
 
     const fetchVehicles = async () => {
       try {
-        const response = await fetch(`${baseurl}/vehicles`);
+        const response = await fetch(`${baseUrl}/vehicles`);
         if (!response.ok) throw new Error("Failed to fetch vehicles");
         const data = await response.json();
         setVehicles(data);
@@ -145,7 +144,7 @@ const BookingPage = () => {
     };
 
     try {
-      const response = await fetch(`${baseurl}/reservations`, {
+      const response = await fetch(`${baseUrl}/reservations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newBooking),
