@@ -9,8 +9,7 @@ const MyBookings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  const baseurl = import.meta.env.VITE_API_URL_LOCAL;
-
+  
   useEffect(() => {
     const fetchBookings = async () => {
       try {
