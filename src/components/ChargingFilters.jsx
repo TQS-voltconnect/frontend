@@ -4,7 +4,6 @@ import { Zap, Plug } from 'lucide-react';
 export default function ChargingFilters({ filters, onChange, showAdvanced, toggleAdvanced }) {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Available Only Toggle */}
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 flex items-center justify-between">
@@ -12,9 +11,11 @@ export default function ChargingFilters({ filters, onChange, showAdvanced, toggl
             <div className="bg-green-100 p-2 rounded-full">
               <Plug className="h-5 w-5 text-green-600" />
             </div>
-            <span className="ml-3 text-gray-700 select-none cursor-pointer">Available Only</span>
+            <span className="ml-3 text-gray-700 select-none cursor-pointer">
+              Available Only
+            </span>
           </div>
-          <label className="relative inline-flex items-center cursor-pointer">
+          <label className="relative inline-flex items-center cursor-pointer w-11 h-6">
             <input
               type="checkbox"
               name="availableOnly"
@@ -23,12 +24,10 @@ export default function ChargingFilters({ filters, onChange, showAdvanced, toggl
               className="sr-only peer"
               aria-label="Toggle Available Only"
             />
-            <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-green-600 transition-colors relative">
-              <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-5"></span>
-            </div>
+            <span className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-green-600 transition-colors"></span>
+            <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-5"></span>
           </label>
         </div>
-
 
         {/* Connector Type Dropdown */}
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
@@ -36,7 +35,10 @@ export default function ChargingFilters({ filters, onChange, showAdvanced, toggl
             <div className="bg-blue-100 p-2 rounded-full">
               <Plug className="h-5 w-5 text-blue-600" />
             </div>
-            <label htmlFor="connector-type" className="ml-3 text-gray-700 cursor-pointer">
+            <label
+              htmlFor="connector-type"
+              className="ml-3 text-gray-700 cursor-pointer"
+            >
               Connector Type
             </label>
           </div>
@@ -60,7 +62,10 @@ export default function ChargingFilters({ filters, onChange, showAdvanced, toggl
             <div className="bg-yellow-100 p-2 rounded-full">
               <Zap className="h-5 w-5 text-yellow-600" />
             </div>
-            <label htmlFor="power-level" className="ml-3 text-gray-700 cursor-pointer">
+            <label
+              htmlFor="power-level"
+              className="ml-3 text-gray-700 cursor-pointer"
+            >
               Power Level
             </label>
           </div>
@@ -78,7 +83,6 @@ export default function ChargingFilters({ filters, onChange, showAdvanced, toggl
           </select>
         </div>
       </div>
-
     </div>
   );
 }

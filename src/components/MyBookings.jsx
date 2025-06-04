@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ClockIcon, LocationMarkerIcon, LightningBoltIcon } from '@heroicons/react/outline';
+import { baseUrl } from '../consts';
 
 const MyBookings = () => {
   const navigate = useNavigate();
@@ -13,15 +14,15 @@ const MyBookings = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await fetch(`${baseurl}/reservations`);
+        const res = await fetch(`${baseUrl}/reservations`);
         const reservations = await res.json();
 
         const detailedBookings = await Promise.all(
           reservations.map(async (reservation) => {
             const [stationRes, chargerRes, vehicleRes] = await Promise.all([
-              fetch(`${baseurl}/stations/${reservation.chargingStationId}`),
-              fetch(`${baseurl}/chargers/${reservation.chargerId}`),
-              fetch(`${baseurl}/vehicles/${reservation.vehicleId}`)
+              fetch(`${baseUrl}/stations/${reservation.chargingStationId}`),
+              fetch(`${baseUrl}/chargers/${reservation.chargerId}`),
+              fetch(`${baseUrl}/vehicles/${reservation.vehicleId}`)
             ]);
 
             const [station, charger, vehicle] = await Promise.all([

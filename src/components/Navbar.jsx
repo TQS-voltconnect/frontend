@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap } from 'lucide-react';
+import { Zap, Map } from 'lucide-react';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -30,6 +30,10 @@ const Navbar = () => {
                         <Link to="/search" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                             Search Stations
                         </Link>
+                        <Link to="/route-planner" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                            <Map className="w-4 h-4 mr-1" />
+                            Route Planner
+                        </Link>
                         <Link to="/my-bookings" className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                             My Bookings
                         </Link>
@@ -51,6 +55,10 @@ const Navbar = () => {
                 <div className="md:hidden px-4 pt-2 pb-4 space-y-2">
                     <Link to="/search" className="block text-gray-700 hover:text-gray-900">
                         Search Stations
+                    </Link>
+                    <Link to="/route-planner" className="block text-gray-700 hover:text-gray-900 flex items-center">
+                        <Map className="w-4 h-4 mr-1" />
+                        Route Planner
                     </Link>
                     <Link to="/my-bookings" className="block text-gray-700 hover:text-gray-900">
                         My Bookings
