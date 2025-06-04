@@ -32,6 +32,7 @@ const StationSearch = () => {
   const [stationReviewMap, setStationReviewMap] = useState({});
   const [showModalStationId, setShowModalStationId] = useState(null);
   const [allReviews, setAllReviews] = useState([]);
+  console.log(allReviews);
 
   const ZoomToStation = ({ coordinates, stationId, selectedStationId }) => {
     const map = useMap();

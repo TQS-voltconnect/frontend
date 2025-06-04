@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { baseUrl } from '../consts';
+import PropTypes from 'prop-types';
 
 const StarRating = ({ rating }) => {
   return (
@@ -17,11 +19,19 @@ const StarRating = ({ rating }) => {
   );
 };
 
+StarRating.propTypes = {
+  rating: PropTypes.number.isRequired,
+};
+
 const TrashIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M8 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
   </svg>
 );
+
+TrashIcon.propTypes = {
+  className: PropTypes.string,
+};
 
 const Dashboard = () => {
   const [reviews, setReviews] = useState([]);
@@ -29,7 +39,6 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [modal, setModal] = useState({ open: false, reviewId: null });
-  const baseurl = import.meta.env.VITE_API_URL_LOCAL;
 
   useEffect(() => {
     fetchReviews();
@@ -39,7 +48,7 @@ const Dashboard = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${baseurl}/reviews`);
+      const response = await fetch(`${baseUrl}/reviews`);
       if (!response.ok) throw new Error('Failed to fetch reviews');
       const data = await response.json();
       setReviews(data);
@@ -53,7 +62,7 @@ const Dashboard = () => {
   const handleDelete = async (id) => {
     setDeletingId(id);
     try {
-      const response = await fetch(`${baseurl}/reviews/${id}`, {
+      const response = await fetch(`${baseUrl}/reviews/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete review');
@@ -139,5 +148,4 @@ const Dashboard = () => {
     </div>
   );
 };
-
 export default Dashboard;
