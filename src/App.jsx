@@ -8,17 +8,16 @@ import Login from './components/Login';
 import RoutePlanner from './components/RoutePlanner';
 import Dashboard from './components/Dashboard';
 import { useState, useEffect } from 'react';
-
+import { baseUrl } from "./consts"
 function App() {
   const [bookings, setBookings] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [vehicles, setVehicles] = useState([]);
-  const baseurl = import.meta.env.VITE_API_URL_LOCAL;
 
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await fetch(`${baseurl}/vehicles`);
+        const response = await fetch(`${baseUrl}/vehicles`);
         if (!response.ok) throw new Error('Failed to fetch vehicles');
         const data = await response.json();
         setVehicles(data);

@@ -42,7 +42,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchReviews();
-  }, [baseurl]);
+  }, [baseUrl]);
 
   const fetchReviews = async () => {
     setLoading(true);
