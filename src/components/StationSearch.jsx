@@ -8,8 +8,6 @@ import StationListItem from "./StationListItem";
 import PropTypes from "prop-types";
 import { baseUrl } from "../consts";
 
-const baseurl = baseUrl;
-
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -30,6 +28,11 @@ const StationSearch = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedStationId, setSelectedStationId] = useState(null);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [stationReviewMap, setStationReviewMap] = useState({});
+  const [showModalStationId, setShowModalStationId] = useState(null);
+  const [allReviews, setAllReviews] = useState([]);
+  console.log(allReviews);
 
   const ZoomToStation = ({ coordinates, stationId, selectedStationId }) => {
     const map = useMap();
@@ -46,7 +49,6 @@ const StationSearch = () => {
     return null;
   };
 
-  // PropTypes validation
   ZoomToStation.propTypes = {
     coordinates: PropTypes.arrayOf(PropTypes.number).isRequired,
     stationId: PropTypes.string.isRequired,
@@ -64,12 +66,10 @@ const StationSearch = () => {
     iconAnchor: [15, 40],
   });
 
-  // Helper function to filter available chargers
   const getAvailableChargers = (chargers) => {
     return chargers.filter((c) => c.chargerStatus === "AVAILABLE").length;
   };
 
-  // Helper function to get unique connectors
   const getUniqueConnectors = (chargers) => {
     const connectors = chargers
       .map((c) => c.chargerType)
@@ -77,7 +77,6 @@ const StationSearch = () => {
     return [...new Set(connectors)];
   };
 
-  // Helper function to get max power
   const getMaxPower = (chargers) => {
     return chargers.length > 0
       ? Math.max(...chargers.map((c) => c.chargingSpeed || 0))
@@ -85,29 +84,25 @@ const StationSearch = () => {
   };
 
   useEffect(() => {
-    const fetchStations = async () => {
+    const fetchStationsAndReviews = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const response = await axios.get(`${baseurl}/stations`);
+        const response = await axios.get(`${baseUrl}/stations`);
         const rawData = response.data;
         if (!Array.isArray(rawData)) {
-          throw new Error(
-            "Response format invalid: expected an array"
-          );
+          throw new Error("Response format invalid: expected an array");
         }
-
         const transformedStations = rawData.map((station) => {
           const chargers = station.chargers || [];
           const available = getAvailableChargers(chargers);
           const total = chargers.length;
           const uniqueConnectors = getUniqueConnectors(chargers);
           const maxPower = getMaxPower(chargers);
-
           return {
             id: station.id,
-            name: `Estação ${station.id}`,
+            name: `Station ${station.id}`,
             city: station.city || "Unknown City",
             address: `Operador ${station.operatorId}`,
             coordinates:
@@ -121,21 +116,26 @@ const StationSearch = () => {
             rating: "4.5",
           };
         });
-
         setStations(transformedStations);
+        const reviewsRes = await fetch(`${baseUrl}/reviews`);
+        const allReviewsData = await reviewsRes.json();
+        setAllReviews(allReviewsData);
+        const map = {};
+        for (const station of transformedStations) {
+          const reviews = allReviewsData.filter(r => r.chargingStationId === station.id);
+          const avg = reviews.length > 0 ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) : null;
+          map[station.id] = { avgRating: avg, reviews };
+        }
+        setStationReviewMap(map);
       } catch (err) {
-        console.error("Error loading stations:", err);
-        setError(
-          err.response?.data?.message ||
-          err.message ||
-          "Failed to load stations"
-        );
+        console.error("Error loading stations or reviews:", err);
+        setError(err.message || "Failed to load stations or reviews");
       } finally {
         setLoading(false);
+        setReviewsLoading(false);
       }
     };
-
-    fetchStations();
+    fetchStationsAndReviews();
   }, []);
 
   const handleFilterChange = (e) => {
@@ -307,6 +307,11 @@ const StationSearch = () => {
                 station={station}
                 isSelected={selectedStationId === station.id}
                 onSelect={setSelectedStationId}
+                reviews={stationReviewMap[station.id]?.reviews || []}
+                avgRating={stationReviewMap[station.id]?.avgRating}
+                reviewsLoading={reviewsLoading}
+                showModal={showModalStationId === station.id}
+                setShowModal={open => setShowModalStationId(open ? station.id : null)}
               />
             ))}
           </ul>
