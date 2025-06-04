@@ -20,6 +20,8 @@ const BookingPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const vehiclesPerPage = 9;
   const [bookingDetails, setBookingDetails] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+
 
   const filteredVehicles = vehicles.filter((vehicle) =>
     `${vehicle.brand} ${vehicle.model}`
@@ -122,6 +124,24 @@ const BookingPage = () => {
     setError(null);
   };
 
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/users`);
+        if (!response.ok) throw new Error("Failed to fetch users");
+        const data = await response.json();
+        if (data.length > 0) setCurrentUser(data[0]); // Assume o primeiro user
+        else setError("No users found.");
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
+
   const handleConfirmBooking = async () => {
     if (
       !selectedSlot ||
@@ -140,8 +160,11 @@ const BookingPage = () => {
       chargingStationId: station.id,
       chargerId: selectedCharger.id,
       vehicleId: selectedVehicle.id,
+      userId: currentUser?.id,
       startTime: startDateTime.toISOString(),
     };
+
+
 
     try {
       const response = await fetch(`${baseUrl}/reservations`, {
@@ -154,6 +177,7 @@ const BookingPage = () => {
       const createdReservation = await response.json();
 
       setBookingDetails({
+
         stationName: station.name,
         vehicle: selectedVehicle,
         charger: selectedCharger,
@@ -255,11 +279,10 @@ const BookingPage = () => {
                         <button
                           key={vehicle.id}
                           onClick={() => setSelectedVehicle(vehicle)}
-                          className={`p-3 rounded-md border text-left ${
-                            selectedVehicle?.id === vehicle.id
-                              ? "border-emerald-600 bg-emerald-50"
-                              : "border-gray-300"
-                          }`}
+                          className={`p-3 rounded-md border text-left ${selectedVehicle?.id === vehicle.id
+                            ? "border-emerald-600 bg-emerald-50"
+                            : "border-gray-300"
+                            }`}
                         >
                           <div className="font-semibold">
                             {vehicle.brand} {vehicle.model}
@@ -352,11 +375,10 @@ const BookingPage = () => {
                     <button
                       key={day.date.toISOString()}
                       onClick={() => handleDateSelect(day.date)}
-                      className={`py-2 px-1 text-sm rounded-md flex flex-col items-center ${
-                        day.date.toDateString() === selectedDate.toDateString()
-                          ? "bg-emerald-100 text-emerald-800 font-medium"
-                          : "hover:bg-gray-100"
-                      }`}
+                      className={`py-2 px-1 text-sm rounded-md flex flex-col items-center ${day.date.toDateString() === selectedDate.toDateString()
+                        ? "bg-emerald-100 text-emerald-800 font-medium"
+                        : "hover:bg-gray-100"
+                        }`}
                     >
                       <span>
                         {day.date.toLocaleDateString("en-US", {
@@ -419,11 +441,10 @@ const BookingPage = () => {
                 <button
                   onClick={handleConfirmBooking}
                   disabled={!selectedSlot || !selectedCharger}
-                  className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                    selectedSlot && selectedCharger
-                      ? "bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-                      : "bg-gray-400 cursor-not-allowed"
-                  }`}
+                  className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${selectedSlot && selectedCharger
+                    ? "bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+                    : "bg-gray-400 cursor-not-allowed"
+                    }`}
                 >
                   Confirm Booking
                 </button>
