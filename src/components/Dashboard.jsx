@@ -148,13 +148,4 @@ const Dashboard = () => {
     </div>
   );
 };
-
-Dashboard.propTypes = {
-  reviews: PropTypes.array.isRequired,
-  loading: PropTypes.bool.isRequired,
-  error: PropTypes.string,
-  deletingId: PropTypes.string,
-  modal: PropTypes.object.isRequired,
-};
-
 export default Dashboard;

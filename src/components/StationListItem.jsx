@@ -6,9 +6,17 @@ import StarRating from "./StarRating";
 const StationListItem = ({ station, isSelected, onSelect, reviews, avgRating, reviewsLoading, showModal, setShowModal }) => {
   const reviewsCount = reviews ? reviews.length : 0;
 
-  const availabilityClass = station.available > 0
-  ? (isSelected ? "bg-emerald-600 text-white" : "bg-green-100 text-green-800")
-  : "bg-red-100 text-red-800";
+  let availabilityClass;
+
+  if (station.available > 0) {
+    if (isSelected) {
+      availabilityClass = "bg-emerald-600 text-white";
+    } else {
+      availabilityClass = "bg-green-100 text-green-800";
+    }
+  } else {
+    availabilityClass = "bg-red-100 text-red-800";
+  }
 
   return (
     <button
