@@ -9,7 +9,7 @@ const MyBookings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
-  
+
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -34,8 +34,13 @@ const MyBookings = () => {
 
             return {
               ...reservation,
-              date: startDateTime.toLocaleDateString(),
-              time: startDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              date: startDateTime.toLocaleDateString('en-GB', { timeZone: 'UTC' }),
+              time: startDateTime.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'UTC'
+              }),
+
               stationCity: station.city,
               chargerType: charger.chargerType,
               chargerSpeed: charger.chargingSpeed,
@@ -43,7 +48,7 @@ const MyBookings = () => {
               vehicleModel: vehicle.model,
               vehicleYear: vehicle.release_year,
               vehicleImage: vehicle.image_url,
-              startTime: reservation.startTime 
+              startTime: reservation.startTime
             };
           })
         );
@@ -97,7 +102,7 @@ const MyBookings = () => {
       setBookings(bookings.filter(booking => booking.id !== reservationId));
       setError(null); // Limpa qualquer erro anterior
       setSuccessMessage('Reservation cancelled successfully');
-      
+
       // Limpa a mensagem de sucesso após 3 segundos
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
@@ -110,7 +115,7 @@ const MyBookings = () => {
   const getBookingStatus = (booking) => {
     const now = new Date();
     const startTime = new Date(booking.startTime);
-    
+
     // Primeiro verifica o status real da reserva
     switch (booking.status) {
       case 'CANCELLED':
@@ -198,7 +203,7 @@ const MyBookings = () => {
       <ul className="space-y-6">
         {bookings.map((booking) => {
           const status = getBookingStatus(booking);
-          
+
           return (
             <li
               key={booking.id}
@@ -209,36 +214,36 @@ const MyBookings = () => {
                   <h3 className="text-xl font-bold text-gray-900 mb-1">
                     {booking.stationCity} Charging Station
                   </h3>
-                  
+
                   <div className="flex items-center text-gray-500">
                     <LocationMarkerIcon className="h-4 w-4 mr-1" />
                     <span>{booking.date} {booking.time}</span>
                   </div>
-                  
+
                   <div className="flex items-center text-gray-500">
                     <LightningBoltIcon className="h-4 w-4 mr-1" />
                     <span>{booking.chargerType} • {booking.chargerSpeed} kW</span>
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col items-end space-y-2">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${status.color}`}>
                     {status.label}
                   </span>
-                  
+
                   <div className="flex flex-col items-end space-y-2">
                     {status.action && (
                       <button
                         onClick={status.action}
                         className="text-sm text-emerald-600 hover:text-emerald-700"
                       >
-                        {booking.status === 'SCHEDULED' && status.label === 'Ready to Start' 
+                        {booking.status === 'SCHEDULED' && status.label === 'Ready to Start'
                           ? 'Start Charging'
-                          : booking.status === 'CHARGING' 
-                          ? 'View Charging'
-                          : booking.status === 'COMPLETED' || booking.status === 'PAID'
-                          ? 'View Details'
-                          : 'View Booking'}
+                          : booking.status === 'CHARGING'
+                            ? 'View Charging'
+                            : booking.status === 'COMPLETED' || booking.status === 'PAID'
+                              ? 'View Details'
+                              : 'View Booking'}
                       </button>
                     )}
                     {status.canCancel && (

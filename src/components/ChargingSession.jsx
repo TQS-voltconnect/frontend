@@ -9,11 +9,12 @@ import {
   CashIcon,
   DeviceMobileIcon
 } from '@heroicons/react/outline';
+import { baseUrl } from '../consts';
+
 
 const ChargingSession = () => {
   const { reservationId } = useParams();
   const navigate = useNavigate();
-  const baseurl = import.meta.env.VITE_API_URL_LOCAL;
   
   const [reservation, setReservation] = useState(null);
   const [error, setError] = useState(null);
@@ -22,14 +23,14 @@ const ChargingSession = () => {
 
   // Add debug logging
   useEffect(() => {
-    console.log('API Base URL:', baseurl);
+    console.log('API Base URL:', baseUrl);
     console.log('Reservation ID:', reservationId);
-  }, [baseurl, reservationId]);
+  }, [baseUrl, reservationId]);
 
   useEffect(() => {
     const fetchReservation = async () => {
       try {
-        const response = await fetch(`${baseurl}/reservations/${reservationId}`);
+        const response = await fetch(`${baseUrl}/reservations/${reservationId}`);
         if (!response.ok) throw new Error('Failed to fetch reservation');
         const data = await response.json();
         setReservation(data);
@@ -46,7 +47,7 @@ const ChargingSession = () => {
   const startCharging = async () => {
     try {
       setError(null);
-      const url = `${baseurl}/reservations/${reservationId}/start`;
+      const url = `${baseUrl}/reservations/${reservationId}/start`;
       console.log('Starting charging session:', { reservationId, url });
       
       const response = await fetch(url, {
@@ -73,7 +74,7 @@ const ChargingSession = () => {
 
   const stopCharging = async () => {
     try {
-      const response = await fetch(`${baseurl}/reservations/${reservationId}/stop`, {
+      const response = await fetch(`${baseUrl}/reservations/${reservationId}/stop`, {
         method: 'POST'
       });
 
@@ -87,7 +88,7 @@ const ChargingSession = () => {
 
   const proceedToPayment = async () => {
     try {
-      const response = await fetch(`${baseurl}/reservations/${reservationId}/pay`, {
+      const response = await fetch(`${baseUrl}/reservations/${reservationId}/pay`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

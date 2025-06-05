@@ -7,6 +7,8 @@ import Navbar from './components/Navbar';
 import Login from './components/Login';
 import RoutePlanner from './components/RoutePlanner';
 import Dashboard from './components/Dashboard';
+import ChargingSession from './components/ChargingSession';
+import SessionPayment from './components/SessionPayment';
 import { useState, useEffect } from 'react';
 import { baseUrl } from "./consts";
 
@@ -42,16 +44,18 @@ function App() {
           element={<BookingPage bookings={bookings} setBookings={setBookings} />}
         />
         <Route path="/my-bookings" element={<MyBookings bookings={bookings} />} />
+        <Route path="/charging-session/:reservationId" element={<ChargingSession />} />
+        <Route path="/payment/:sessionId" element={<SessionPayment />} />
         <Route path="/login" element={<Login />} />
-        <Route 
-          path="/route-planner" 
+        <Route
+          path="/route-planner"
           element={
-            <RoutePlanner 
-              vehicle={selectedVehicle} 
+            <RoutePlanner
+              vehicle={selectedVehicle}
               setSelectedVehicle={setSelectedVehicle}
               vehicles={vehicles}
             />
-          } 
+          }
         />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
