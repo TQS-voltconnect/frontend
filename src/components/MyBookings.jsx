@@ -209,6 +209,13 @@ time: startDateTime.toLocaleTimeString('en-GB', {
           action: null,
           canCancel: false
         };
+      case 'EXPIRED':
+        return {
+          label: 'Expired',
+          color: 'bg-gray-100 text-gray-800',
+          action: null,
+          canCancel: false
+        };
 
       default:
         return {
