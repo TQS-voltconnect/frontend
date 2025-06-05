@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 const TrashIcon = ({ className }) => (
@@ -14,6 +14,17 @@ const PencilIcon = ({ className }) => (
 );
 
 const ChargerList = ({ chargers, stationId, onEdit, onDelete, onAdd }) => {
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, chargerId: null });
+
+  const handleConfirmDelete = (chargerId) => {
+    setConfirmDelete({ open: true, chargerId });
+  };
+
+  const confirmAndDelete = () => {
+    onDelete(confirmDelete.chargerId);
+    setConfirmDelete({ open: false, chargerId: null });
+  };
+
   return (
     <div className="mt-4">
       <h4 className="font-semibold text-emerald-700 text-base mb-2">Chargers</h4>
@@ -39,7 +50,7 @@ const ChargerList = ({ chargers, stationId, onEdit, onDelete, onAdd }) => {
                   <PencilIcon className="h-4 w-4 text-blue-600" />
                 </button>
                 <button
-                  onClick={() => onDelete(charger.id)}
+                  onClick={() => handleConfirmDelete(charger.id)}
                   className="p-2 rounded-full bg-gray-100 hover:bg-red-100 transition-colors duration-150"
                   aria-label="Delete charger"
                 >
@@ -61,6 +72,35 @@ const ChargerList = ({ chargers, stationId, onEdit, onDelete, onAdd }) => {
           + Add Charger
         </button>
       </div>
+
+      {confirmDelete.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full text-center">
+            <div className="flex flex-col items-center mb-4">
+              <TrashIcon className="h-10 w-10 text-red-500 mb-2" />
+              <h2 className="text-xl font-bold mb-2">Delete Charger</h2>
+              <p className="text-gray-600 mb-4">
+                Are you sure you want to delete this charger? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setConfirmDelete({ open: false, chargerId: null })}
+                className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmAndDelete}
+                className="px-4 py-2 rounded-md bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors flex items-center gap-2"
+              >
+                <TrashIcon className="h-5 w-5" />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

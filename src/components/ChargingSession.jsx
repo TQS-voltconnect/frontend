@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  PlayIcon, 
-  StopIcon, 
-  ClockIcon, 
+import {
+  PlayIcon,
+  StopIcon,
+  ClockIcon,
   LightningBoltIcon,
   CreditCardIcon,
   CashIcon,
@@ -15,7 +15,7 @@ import { baseUrl } from '../consts';
 const ChargingSession = () => {
   const { reservationId } = useParams();
   const navigate = useNavigate();
-  
+
   const [reservation, setReservation] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,48 +43,6 @@ const ChargingSession = () => {
 
     fetchReservation();
   }, [reservationId]);
-
-  const startCharging = async () => {
-    try {
-      setError(null);
-      const url = `${baseUrl}/reservations/${reservationId}/start`;
-      console.log('Starting charging session:', { reservationId, url });
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Charging start error response:', errorData);
-        throw new Error(errorData.message || `Failed to start charging. Status: ${response.status}`);
-      }
-
-      const updatedReservation = await response.json();
-      console.log('Charging started successfully:', updatedReservation);
-      setReservation(updatedReservation);
-    } catch (err) {
-      console.error('Error starting charging:', err);
-      setError(err.message);
-    }
-  };
-
-  const stopCharging = async () => {
-    try {
-      const response = await fetch(`${baseUrl}/reservations/${reservationId}/stop`, {
-        method: 'POST'
-      });
-
-      if (!response.ok) throw new Error('Failed to stop charging');
-      const updatedReservation = await response.json();
-      setReservation(updatedReservation);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
 
   const proceedToPayment = async () => {
     try {
@@ -141,15 +99,15 @@ const ChargingSession = () => {
 
         <div className="p-6">
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-gray-50 rounded-lg shadow">
               <div className="text-gray-600 mb-2">Scheduled Start</div>
               <div className="text-lg font-medium">{formatDate(reservation.startTime)}</div>
             </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-gray-50 rounded-lg shadow">
               <div className="text-gray-600 mb-2">Duration</div>
               <div className="text-lg font-medium">{reservation.chargingTime} minutes</div>
             </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="p-4 bg-gray-50 rounded-lg shadow">
               <div className="text-gray-600 mb-2">Price</div>
               <div className="text-lg font-medium">€{reservation.price?.toFixed(2) || '0.00'}</div>
             </div>
@@ -181,25 +139,6 @@ const ChargingSession = () => {
 
           {/* Actions */}
           <div className="space-y-4">
-            {reservation.status === 'SCHEDULED' && (
-              <button
-                onClick={startCharging}
-                className="w-full flex items-center justify-center px-4 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
-              >
-                <PlayIcon className="h-5 w-5 mr-2" />
-                Start Charging
-              </button>
-            )}
-
-            {reservation.status === 'CHARGING' && (
-              <button
-                onClick={stopCharging}
-                className="w-full flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                <StopIcon className="h-5 w-5 mr-2" />
-                Stop Charging
-              </button>
-            )}
 
             {reservation.status === 'COMPLETED' && !reservation.isPaid && (
               <div className="space-y-4">

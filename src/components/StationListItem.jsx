@@ -21,11 +21,10 @@ const StationListItem = ({ station, isSelected, onSelect, reviews, avgRating, re
   return (
     <button
       type="button"
-      className={`w-full transition-colors cursor-pointer text-left outline-none border-l-4 ${
-        isSelected
+      className={`w-full transition-colors cursor-pointer text-left outline-none border-l-4 ${isSelected
           ? "bg-emerald-50 border-emerald-500 shadow-md"
           : "bg-white border-transparent hover:bg-gray-50"
-      } rounded-none px-0 py-0`}
+        } rounded-none px-0 py-0`}
       onClick={() => {
         onSelect(station.id);
         document.querySelector(".map-container")?.scrollIntoView({
@@ -52,7 +51,7 @@ const StationListItem = ({ station, isSelected, onSelect, reviews, avgRating, re
             <p className="text-sm text-gray-500 mt-1">{station.city}</p>
           </div>
           <span
-          className={`text-xs px-2 py-1 rounded-full font-semibold ${availabilityClass}`}
+            className={`text-xs px-2 py-1 rounded-full font-semibold ${availabilityClass}`}
           >
             {station.available}/{station.total} available
           </span>
@@ -99,13 +98,18 @@ const StationListItem = ({ station, isSelected, onSelect, reviews, avgRating, re
         </div>
 
         <div className="mt-4">
-          <Link
-            to={`/stations/${station.id}`}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded shadow-sm text-white bg-emerald-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-          >
-            Book
-          </Link>
+          {station.available > 0 ? (
+            <Link
+              to={`/stations/${station.id}`}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded shadow-sm text-white bg-emerald-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
+            >
+              Book
+            </Link>
+          ) : (
+            <span className="text-sm text-gray-400 italic">No available chargers</span>
+          )}
         </div>
+
       </div>
 
       {/* Modal for all reviews */}
