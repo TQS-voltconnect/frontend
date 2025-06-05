@@ -119,14 +119,22 @@ const ChargingSession = () => {
                     {reservation.energyConsumed?.toFixed(2) || '0.00'} kWh
                   </div>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="text-gray-600 mb-2">Charging Start</div>
-                  <div className="text-lg font-medium">{formatDate(reservation.chargingStartTime)}</div>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="text-gray-600 mb-2">Charging End</div>
-                  <div className="text-lg font-medium">{formatDate(reservation.chargingEndTime)}</div>
-                </div>
+<div className="p-4 bg-gray-50 rounded-lg">
+  <div className="text-gray-600 mb-2">Charging Start</div>
+  <div className="text-lg font-medium">
+    {formatDate(reservation.startTime)}
+  </div>
+</div>
+
+<div className="p-4 bg-gray-50 rounded-lg">
+  <div className="text-gray-600 mb-2">Charging End</div>
+  <div className="text-lg font-medium">
+    {formatDate(
+      new Date(new Date(reservation.startTime).getTime() + reservation.chargingTime * 60000)
+    )}
+  </div>
+</div>
+
               </>
             )}
             {reservation.isPaid && (
