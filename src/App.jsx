@@ -7,18 +7,20 @@ import Navbar from './components/Navbar';
 import Login from './components/Login';
 import RoutePlanner from './components/RoutePlanner';
 import Dashboard from './components/Dashboard';
+import ChargingSession from './components/ChargingSession';
+import SessionPayment from './components/SessionPayment';
 import { useState, useEffect } from 'react';
+import { baseUrl } from "./consts";
 
 function App() {
   const [bookings, setBookings] = useState([]);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [vehicles, setVehicles] = useState([]);
-  const baseurl = import.meta.env.VITE_API_URL_LOCAL;
 
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await fetch(`${baseurl}/vehicles`);
+        const response = await fetch(`${baseUrl}/vehicles`);
         if (!response.ok) throw new Error('Failed to fetch vehicles');
         const data = await response.json();
         setVehicles(data);
@@ -42,16 +44,18 @@ function App() {
           element={<BookingPage bookings={bookings} setBookings={setBookings} />}
         />
         <Route path="/my-bookings" element={<MyBookings bookings={bookings} />} />
+        <Route path="/charging-session/:reservationId" element={<ChargingSession />} />
+        <Route path="/payment/:sessionId" element={<SessionPayment />} />
         <Route path="/login" element={<Login />} />
-        <Route 
-          path="/route-planner" 
+        <Route
+          path="/route-planner"
           element={
-            <RoutePlanner 
-              vehicle={selectedVehicle} 
+            <RoutePlanner
+              vehicle={selectedVehicle}
               setSelectedVehicle={setSelectedVehicle}
               vehicles={vehicles}
             />
-          } 
+          }
         />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
