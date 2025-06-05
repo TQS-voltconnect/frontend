@@ -9,6 +9,10 @@ const MyBookings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
+  const [activeReviewId, setActiveReviewId] = useState(null);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -78,18 +82,16 @@ const MyBookings = () => {
 
   const cancelReservation = async (reservationId) => {
     try {
-      // Encontra a reserva atual
       const booking = bookings.find(b => b.id === reservationId);
       if (!booking) {
         throw new Error('Booking not found');
       }
 
-      // Verifica se a reserva pode ser cancelada
       if (booking.status !== 'SCHEDULED') {
         throw new Error('Only scheduled reservations can be cancelled');
       }
 
-      const response = await fetch(`${baseurl}/reservations/${reservationId}`, {
+      const response = await fetch(`${baseUrl}/reservations/${reservationId}`, {
         method: 'DELETE'
       });
 
@@ -97,13 +99,8 @@ const MyBookings = () => {
         const errorData = await response.text();
         throw new Error(errorData || 'Failed to cancel reservation');
       }
-
-      // Remove a reserva cancelada da lista
-      setBookings(bookings.filter(booking => booking.id !== reservationId));
-      setError(null); // Limpa qualquer erro anterior
       setSuccessMessage('Reservation cancelled successfully');
 
-      // Limpa a mensagem de sucesso após 3 segundos
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
       setError(err.message);
@@ -111,6 +108,35 @@ const MyBookings = () => {
       console.error('Error canceling reservation:', err);
     }
   };
+
+  const submitReview = async (stationId) => {
+  try {
+    const response = await fetch(`${baseUrl}/reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chargingStationId: stationId,
+        rating: reviewRating,
+        comment: reviewComment
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to submit review');
+    }
+
+    setSuccessMessage('Review submitted successfully');
+    setActiveReviewId(null);
+    setReviewComment('');
+    setReviewRating(5);
+
+    setTimeout(() => setSuccessMessage(null), 3000);
+  } catch (err) {
+    setError(err.message);
+    setSuccessMessage(null);
+  }
+};
+
 
   const getBookingStatus = (booking) => {
     const now = new Date();
@@ -231,30 +257,77 @@ const MyBookings = () => {
                     {status.label}
                   </span>
 
-                  <div className="flex flex-col items-end space-y-2">
-                    {status.action && (
-                      <button
-                        onClick={status.action}
-                        className="text-sm text-emerald-600 hover:text-emerald-700"
-                      >
-                        {booking.status === 'SCHEDULED' && status.label === 'Ready to Start'
-                          ? 'Start Charging'
-                          : booking.status === 'CHARGING'
-                            ? 'View Charging'
-                            : booking.status === 'COMPLETED' || booking.status === 'PAID'
-                              ? 'View Details'
-                              : 'View Booking'}
-                      </button>
-                    )}
-                    {status.canCancel && (
-                      <button
-                        onClick={() => cancelReservation(booking.id)}
-                        className="text-sm text-red-600 hover:text-red-700"
-                      >
-                        Cancel Reservation
-                      </button>
-                    )}
-                  </div>
+<div className="flex flex-col items-end space-y-2">
+  {status.action && (
+    <button
+      onClick={status.action}
+      className="text-sm text-emerald-600 hover:text-emerald-700"
+    >
+      {booking.status === 'SCHEDULED' && status.label === 'Ready to Start'
+        ? 'Start Charging'
+        : booking.status === 'CHARGING'
+          ? 'View Charging'
+          : booking.status === 'COMPLETED'
+            ? 'View Details'
+            : booking.status === 'PAID'
+              ? 'View Details'
+              : 'View Booking'}
+    </button>
+  )}
+
+  {status.canCancel && (
+    <button
+      onClick={() => cancelReservation(booking.id)}
+      className="text-sm text-red-600 hover:text-red-700"
+    >
+      Cancel Reservation
+    </button>
+  )}
+
+  {booking.status === 'PAID' && (
+    <>
+      <button
+        onClick={() =>
+          setActiveReviewId(activeReviewId === booking.id ? null : booking.id)
+        }
+        className="text-sm text-indigo-600 hover:text-indigo-800"
+      >
+        {activeReviewId === booking.id ? 'Cancel Review' : 'Add Review'}
+      </button>
+
+      {activeReviewId === booking.id && (
+        <div className="mt-2 space-y-2 w-full">
+          <textarea
+            placeholder="Write your comment..."
+            className="w-full border rounded p-2 text-sm"
+            value={reviewComment}
+            onChange={(e) => setReviewComment(e.target.value)}
+          />
+          <div className="flex items-center space-x-2">
+            <label htmlFor="rating" className="text-sm text-gray-600">Rating:</label>
+            <select
+              id="rating"
+              value={reviewRating}
+              onChange={(e) => setReviewRating(parseInt(e.target.value))}
+              className="border rounded p-1 text-sm"
+            >
+              {[1, 2, 3, 4, 5].map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+            <button
+              onClick={() => submitReview(booking.chargingStationId)}
+              className="bg-emerald-600 text-white px-3 py-1 rounded text-sm hover:bg-emerald-700"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  )}
+</div>
+
                 </div>
               </div>
             </li>

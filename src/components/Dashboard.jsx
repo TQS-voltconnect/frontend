@@ -50,6 +50,8 @@ const Dashboard = () => {
   const [newStation, setNewStation] = useState({ city: '', location: ['', ''], operatorId: '' });
   const [selectedStationId, setSelectedStationId] = useState(null);
   const [chargerModal, setChargerModal] = useState({ open: false, mode: 'create', stationId: null, charger: null });
+  const [searchQuery, setSearchQuery] = useState('');
+
 
 
 
@@ -187,22 +189,17 @@ const Dashboard = () => {
   };
 
 
-  const handleDeleteCharger = async (chargerId, stationId) => {
-    console.log('Deleting charger with ID:', chargerId);
-    setError(null);
+const handleDeleteCharger = async (chargerId, stationId) => {
+  try {
+    const response = await fetch(`${baseUrl}/chargers/${chargerId}`, {
+      method: 'DELETE',
+    });
+    await fetchStations(); // Atualiza a UI
+  } catch (err) {
+    setError('Error deleting charger: ' + err.message);
+  }
+};
 
-    try {
-      const response = await fetch(`${baseUrl}/chargers/${chargerId}`, {
-        method: 'DELETE',
-      });
-
-      await fetchStations();
-    } catch (err) {
-      setError('Error deleting charger: ' + err.message);
-    } finally {
-      setDeletingId(null);
-    }
-  };
 
 
   const getReviewsByStation = (stationId) => {
@@ -215,12 +212,21 @@ const Dashboard = () => {
   return (
     <div className="max-w-4xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8 text-emerald-700 flex items-center gap-2">
-        <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.38-2.454a1 1 0 00-1.175 0l-3.38 2.454c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.05 9.394c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.967z" /></svg>
         Admin Dashboard
       </h1>
       {/* Stations Section */}
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-4 text-emerald-600">Charging Stations</h2>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search by city or station ID..."
+            className="w-full md:w-1/2 px-4 py-2 border border-emerald-200 rounded-xl shadow-sm focus:ring-emerald-500 focus:border-emerald-500 transition"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
         <form
           onSubmit={handleCreateStation}
           className="mb-6 flex flex-col md:flex-row gap-4 items-end bg-white p-6 rounded-2xl shadow-lg border border-emerald-100 hover:shadow-xl transition-shadow duration-300"
@@ -292,147 +298,161 @@ const Dashboard = () => {
               />
             </div>
           </div>
-          <button type="submit" disabled={creating} >
+          <button
+            type="submit"
+            disabled={creating}
+            className={`px-6 py-2 rounded-xl font-semibold shadow-sm border-2 transition-all duration-200 ${creating
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              : 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 hover:shadow-md'
+              }`}
+          >
             {creating ? 'Creating...' : 'Create Station'}
           </button>
+
         </form>
         {stations.length === 0 ? (
           <div className="text-gray-500 text-center">No stations found.</div>
         ) : (
           <ul className="space-y-6">
-            {stations.map((station) => (
-              <li
-                key={station.id}
-                className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 space-y-4"
-              >
-                {/* Header */}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-bold text-emerald-700">Station #{station.id}</h3>
-                    <p className="text-gray-600">City: {station.city}</p>
-                    <p className="text-gray-600">
-                      Location: [{station.location?.[0]}, {station.location?.[1]}]
-                    </p>
-                    <p className="text-gray-600">Operator ID: {station.operatorId}</p>
+            {stations
+              .filter((station) =>
+                station.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                station.id.toString().includes(searchQuery)
+              )
+              .map((station) => (
+                <li
+                  key={station.id}
+                  className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 space-y-4"
+                >
+                  {/* Header */}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-xl font-bold text-emerald-700">Station #{station.id}</h3>
+                      <p className="text-gray-600">City: {station.city}</p>
+                      <p className="text-gray-600">
+                        Location: [{station.location?.[0]}, {station.location?.[1]}]
+                      </p>
+                      <p className="text-gray-600">Operator ID: {station.operatorId}</p>
+                    </div>
+                    <button
+                      onClick={() => setStationModal({ open: true, stationId: station.id })}
+                      disabled={deletingId === station.id}
+                      className="p-2 rounded-full bg-gray-100 hover:bg-red-100 transition-colors duration-150 disabled:opacity-50"
+                      aria-label="Delete station"
+                    >
+                      <TrashIcon className="h-5 w-5 text-red-500" />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => setStationModal({ open: true, stationId: station.id })}
-                    disabled={deletingId === station.id}
-                    className="p-2 rounded-full bg-gray-100 hover:bg-red-100 transition-colors duration-150 disabled:opacity-50"
-                    aria-label="Delete station"
-                  >
-                    <TrashIcon className="h-5 w-5 text-red-500" />
-                  </button>
-                </div>
 
-                {/* Chargers */}
-                <div className="bg-gray-50 p-4 rounded-xl">
-                  <ChargerList
-                    chargers={station.chargers}
-                    stationId={station.id}
-                    onEdit={(stationId, charger) => setChargerModal({ open: true, mode: 'edit', stationId, charger })}
-                    onDelete={(chargerId) => handleDeleteCharger(chargerId, station.id)}
-                    onAdd={(stationId) => setChargerModal({ open: true, mode: 'create', stationId, charger: null })}
-                  />
+                  {/* Chargers */}
+                  <div className="bg-gray-50 p-4 rounded-xl">
+<ChargerList
+  chargers={station.chargers}
+  stationId={station.id}
+  onEdit={(stationId, charger) => setChargerModal({ open: true, mode: 'edit', stationId, charger })}
+  onDelete={(chargerId) => handleDeleteCharger(chargerId, station.id)}
+  onAdd={(stationId) => setChargerModal({ open: true, mode: 'create', stationId, charger: null })}
+/>
 
-                  <ChargerModal
-                    isOpen={chargerModal.open}
-                    mode={chargerModal.mode}
-                    stationId={chargerModal.stationId}
-                    charger={chargerModal.charger}
-                    onClose={() => setChargerModal({ open: false, mode: 'create', stationId: null, charger: null })}
-                    onSave={handleSaveCharger}
-                  />
 
-                </div>
+                    <ChargerModal
+                      isOpen={chargerModal.open}
+                      mode={chargerModal.mode}
+                      stationId={chargerModal.stationId}
+                      charger={chargerModal.charger}
+                      onClose={() => setChargerModal({ open: false, mode: 'create', stationId: null, charger: null })}
+                      onSave={handleSaveCharger}
+                    />
 
-                {/* Reviews */}
-                <div className="bg-gray-50 p-4 rounded-xl">
-                  <h4 className="font-medium text-sm text-emerald-600 mb-2">Reviews:</h4>
-                  <ul className="space-y-3">
-                    {getReviewsByStation(station.id).length > 0 ? (
-                      getReviewsByStation(station.id).map((review) => (
-                        <li
-                          key={review.id}
-                          className="bg-white border border-gray-200 rounded-xl p-3 flex justify-between items-start shadow-sm"
-                        >
-                          <div>
-                            <StarRating rating={review.rating} />
-                            <p className="text-sm italic text-gray-700 mt-1">"{review.comment}"</p>
+                  </div>
+
+                  {/* Reviews */}
+                  <div className="bg-gray-50 p-4 rounded-xl">
+                    <h4 className="font-medium text-sm text-emerald-600 mb-2">Reviews:</h4>
+                    <ul className="space-y-3">
+                      {getReviewsByStation(station.id).length > 0 ? (
+                        getReviewsByStation(station.id).map((review) => (
+                          <li
+                            key={review.id}
+                            className="bg-white border border-gray-200 rounded-xl p-3 flex justify-between items-start shadow-sm"
+                          >
+                            <div>
+                              <StarRating rating={review.rating} />
+                              <p className="text-sm italic text-gray-700 mt-1">"{review.comment}"</p>
+                            </div>
+                            <button
+                              onClick={() => setModal({ open: true, reviewId: review.id })}
+                              disabled={deletingId === review.id}
+                              className="p-2 rounded-full bg-gray-100 hover:bg-red-100 transition-colors duration-150 disabled:opacity-50"
+                              aria-label="Delete review"
+                            >
+                              <TrashIcon className="h-4 w-4 text-red-500" />
+                            </button>
+                          </li>
+                        ))
+                      ) : (
+                        <li className="text-sm text-gray-500">No reviews.</li>
+                      )}
+                    </ul>
+                    {modal.open && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center">
+                        <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full text-center">
+                          <div className="flex flex-col items-center mb-4">
+                            <TrashIcon className="h-10 w-10 text-red-500 mb-2" />
+                            <h2 className="text-xl font-bold mb-2">Delete Review</h2>
+                            <p className="text-gray-600 mb-4">
+                              Are you sure you want to delete this review? This action cannot be undone.
+                            </p>
                           </div>
-                          <button
-                            onClick={() => setModal({ open: true, reviewId: review.id })}
-                            disabled={deletingId === review.id}
-                            className="p-2 rounded-full bg-gray-100 hover:bg-red-100 transition-colors duration-150 disabled:opacity-50"
-                            aria-label="Delete review"
-                          >
-                            <TrashIcon className="h-4 w-4 text-red-500" />
-                          </button>
-                        </li>
-                      ))
-                    ) : (
-                      <li className="text-sm text-gray-500">No reviews.</li>
-                    )}
-                  </ul>
-                  {modal.open && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center">
-                      <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full text-center">
-                        <div className="flex flex-col items-center mb-4">
-                          <TrashIcon className="h-10 w-10 text-red-500 mb-2" />
-                          <h2 className="text-xl font-bold mb-2">Delete Review</h2>
-                          <p className="text-gray-600 mb-4">
-                            Are you sure you want to delete this review? This action cannot be undone.
-                          </p>
-                        </div>
-                        <div className="flex justify-center gap-4">
-                          <button
-                            onClick={() => setModal({ open: false, reviewId: null })}
-                            className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors"
-                            disabled={deletingId !== null}
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={() => handleDeleteReview(modal.reviewId)}
-                            className="px-4 py-2 rounded-md bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors flex items-center gap-2 disabled:opacity-50"
-                            disabled={deletingId !== null}
-                          >
-                            {deletingId !== null ? (
-                              <svg
-                                className="animate-spin h-5 w-5 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                ></circle>
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8v8z"
-                                ></path>
-                              </svg>
-                            ) : (
-                              <TrashIcon className="h-5 w-5" />
-                            )}
-                            Delete
-                          </button>
+                          <div className="flex justify-center gap-4">
+                            <button
+                              onClick={() => setModal({ open: false, reviewId: null })}
+                              className="px-4 py-2 rounded-md bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors"
+                              disabled={deletingId !== null}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => handleDeleteReview(modal.reviewId)}
+                              className="px-4 py-2 rounded-md bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors flex items-center gap-2 disabled:opacity-50"
+                              disabled={deletingId !== null}
+                            >
+                              {deletingId !== null ? (
+                                <svg
+                                  className="animate-spin h-5 w-5 text-white"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  ></circle>
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v8z"
+                                  ></path>
+                                </svg>
+                              ) : (
+                                <TrashIcon className="h-5 w-5" />
+                              )}
+                              Delete
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
 
 
-                </div>
-              </li>
-            ))}
+                  </div>
+                </li>
+              ))}
           </ul>
 
         )}
